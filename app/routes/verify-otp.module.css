@@ -1,0 +1,107 @@
+.page {
+  min-height: 100vh;
+  background: var(--color-background);
+}
+
+.container {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.card {
+  background: var(--color-card);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--color-foreground);
+}
+
+.subtitle {
+  color: var(--color-muted-foreground);
+  font-size: 0.95rem;
+}
+
+.subtitle strong {
+  color: var(--color-foreground);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  font-weight: 500;
+  color: var(--color-foreground);
+  font-size: 0.9rem;
+}
+
+.required {
+  color: var(--color-destructive);
+}
+
+.otpInput {
+  width: 100%;
+  font-size: 1.5rem;
+  text-align: center;
+  letter-spacing: 0.5rem;
+  font-weight: 600;
+}
+
+.helpText {
+  font-size: 0.85rem;
+  color: var(--color-muted-foreground);
+}
+
+.error {
+  background: var(--color-destructive);
+  color: white;
+  padding: 0.75rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.submitButton {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.resendSection {
+  text-align: center;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.resendText {
+  color: var(--color-muted-foreground);
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+}
+
+.resendButton {
+  width: 100%;
+}
+
+.backButton {
+  width: 100%;
+  margin-top: 0.5rem;
+}

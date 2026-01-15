@@ -1,0 +1,132 @@
+{
+  "reports": {
+    "1": {
+      "description": "Multiple citizens reporting slow-moving traffic. Possible accident or roadwork.",
+      "issue_type": "Traffic & Roads",
+      "city": "Demo City",
+      "locality": "Main Chowk, Station Road",
+      "latitude": 12.9718,
+      "longitude": 77.5940,
+      "confidence": "HIGH",
+      "confidence_reason": "Seeded mock data",
+      "status": "CONFIRMED",
+      "ai_metadata": {},
+      "created_at": "2024-01-15T10:15:00",
+      "reportCount": 12,
+      "timeline": [
+        {
+          "id": "t1",
+          "timestamp": "2024-01-15T10:15:00",
+          "time": "10:15 AM",
+          "confidence": "Low",
+          "description": "First reports received from 2 citizens"
+        },
+        {
+          "id": "t2",
+          "timestamp": "2024-01-15T10:45:00",
+          "time": "10:45 AM",
+          "confidence": "Medium",
+          "description": "Multiple nearby reports (8 total) from different locations"
+        },
+        {
+          "id": "t3",
+          "timestamp": "2024-01-15T11:30:00",
+          "time": "11:30 AM",
+          "confidence": "High",
+          "description": "Pattern confirmed across 12 reports. Situation stabilizing"
+        }
+      ]
+    },
+    "2": {
+      "description": "Residents reporting power cut since morning. Affecting approximately 200 households.",
+      "issue_type": "Electricity",
+      "city": "Demo City",
+      "locality": "Sector 7, Residential Area",
+      "latitude": 12.9725,
+      "longitude": 77.5950,
+      "confidence": "MEDIUM",
+      "confidence_reason": "Seeded mock data",
+      "status": "CONFIRMED",
+      "ai_metadata": {},
+      "created_at": "2024-01-15T09:30:00",
+      "reportCount": 18,
+      "timeline": [
+        { "id": "t4", "timestamp": "2024-01-15T09:30:00", "time": "09:30 AM", "confidence": "Low", "description": "Initial reports from 3 households" },
+        { "id": "t5", "timestamp": "2024-01-15T10:00:00", "time": "10:00 AM", "confidence": "Medium", "description": "Reports increasing (18 total). Area-wide pattern emerging" },
+        { "id": "t6", "timestamp": "2024-01-15T12:00:00", "time": "12:00 PM", "confidence": "Medium", "description": "No new signals. Situation ongoing" }
+      ]
+    },
+    "3": {
+      "description": "Citizens reporting reduced water supply during morning hours.",
+      "issue_type": "Water & Sanitation",
+      "city": "Demo City",
+      "locality": "Gandhi Nagar, Zone B",
+      "latitude": 12.9700,
+      "longitude": 77.5930,
+      "confidence": "MEDIUM",
+      "confidence_reason": "Seeded mock data",
+      "status": "UNDER_OBSERVATION",
+      "ai_metadata": {},
+      "created_at": "2024-01-15T08:00:00",
+      "reportCount": 6,
+      "timeline": [
+        { "id": "t7", "timestamp": "2024-01-15T08:00:00", "time": "08:00 AM", "confidence": "Low", "description": "First reports (4 citizens) about low pressure" },
+        { "id": "t8", "timestamp": "2024-01-15T09:15:00", "time": "09:15 AM", "confidence": "Medium", "description": "Additional reports confirm localized issue" }
+      ]
+    },
+    "4": {
+      "description": "Temporary closure due to maintenance work. Alternate routes available.",
+      "issue_type": "Infrastructure",
+      "city": "Demo City",
+      "locality": "Railway Crossing, NH-44",
+      "latitude": 12.9685,
+      "longitude": 77.5960,
+      "confidence": "HIGH",
+      "confidence_reason": "Seeded mock data",
+      "status": "RESOLVED",
+      "ai_metadata": {},
+      "created_at": "2024-01-14T14:00:00",
+      "reportCount": 8,
+      "timeline": [
+        { "id": "t9", "timestamp": "2024-01-14T14:00:00", "time": "02:00 PM", "confidence": "Medium", "description": "Reports of road closure" },
+        { "id": "t10", "timestamp": "2024-01-14T15:30:00", "time": "03:30 PM", "confidence": "High", "description": "Confirmed by multiple sources" },
+        { "id": "t11", "timestamp": "2024-01-14T18:00:00", "time": "06:00 PM", "confidence": "High", "description": "Reports indicate road reopened. Likely resolved" }
+      ]
+    },
+    "5": {
+      "description": "Multiple street lights not functioning. Reduced visibility after dark.",
+      "issue_type": "Public Safety",
+      "city": "Demo City",
+      "locality": "Park Street, near City Park",
+      "latitude": 12.9730,
+      "longitude": 77.5920,
+      "confidence": "LOW",
+      "confidence_reason": "Seeded mock data",
+      "status": "UNDER_OBSERVATION",
+      "ai_metadata": {},
+      "created_at": "2024-01-15T07:45:00",
+      "reportCount": 3,
+      "timeline": [
+        { "id": "t12", "timestamp": "2024-01-15T07:45:00", "time": "07:45 AM", "confidence": "Low", "description": "Initial reports from 3 citizens. Awaiting verification" }
+      ]
+    },
+    "6": {
+      "description": "Citizens reporting excessive noise from ongoing construction work during evening hours.",
+      "issue_type": "General",
+      "city": "Demo City",
+      "locality": "Central Market, Shopping District",
+      "latitude": 12.9710,
+      "longitude": 77.5955,
+      "confidence": "MEDIUM",
+      "confidence_reason": "Seeded mock data",
+      "status": "UNDER_OBSERVATION",
+      "ai_metadata": {},
+      "created_at": "2024-01-15T11:20:00",
+      "reportCount": 5,
+      "timeline": [
+        { "id": "t13", "timestamp": "2024-01-15T11:20:00", "time": "11:20 AM", "confidence": "Low", "description": "Initial reports from nearby residents" },
+        { "id": "t14", "timestamp": "2024-01-15T12:00:00", "time": "12:00 PM", "confidence": "Medium", "description": "Multiple reports (5 total) from same area confirm pattern" }
+      ]
+    }
+  }
+}

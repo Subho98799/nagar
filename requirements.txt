@@ -1,0 +1,17 @@
+# FastAPI and server
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+
+# Pydantic settings for environment variables
+pydantic==2.9.0
+pydantic-settings==2.6.0
+
+# Firebase Admin SDK for Firestore (newer version with better Windows support)
+firebase-admin==6.5.0
+
+# Python environment variables
+python-dotenv==1.0.1
+
+# Future dependencies (commented out for now):
+# google-generativeai  # For Gemini API (Step 2+)
+# twilio  # For WhatsApp Business API (Step 3+)

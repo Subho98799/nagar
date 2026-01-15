@@ -1,0 +1,144 @@
+.page {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, var(--color-neutral-1) 0%, var(--color-neutral-2) 100%);
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-5);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: var(--space-6);
+}
+
+.title {
+  font: var(--font-heading);
+  color: var(--color-neutral-12);
+  margin: 0 0 var(--space-3) 0;
+}
+
+.subtitle {
+  font-size: var(--font-size-2);
+  color: var(--color-neutral-10);
+  line-height: var(--font-lineheight-3);
+}
+
+.previewCard {
+  background: var(--color-neutral-1);
+  border: 1px solid var(--color-neutral-5);
+  border-radius: var(--radius-4);
+  padding: var(--space-6);
+  margin-bottom: var(--space-5);
+}
+
+.previewHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-neutral-4);
+}
+
+.whatsappIcon {
+  width: 32px;
+  height: 32px;
+  color: var(--teal-9);
+}
+
+.previewTitle {
+  font-size: var(--font-size-2);
+  font-weight: 600;
+  color: var(--color-neutral-12);
+  margin: 0;
+}
+
+.messages {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.message {
+  background: var(--teal-2);
+  border: 1px solid var(--teal-5);
+  border-radius: var(--radius-3);
+  padding: var(--space-4);
+  position: relative;
+}
+
+.message::before {
+  content: "";
+  position: absolute;
+  left: -8px;
+  top: 12px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 8px 8px 0;
+  border-color: transparent var(--teal-5) transparent transparent;
+}
+
+.messageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-2);
+}
+
+.messageSender {
+  font-weight: 600;
+  color: var(--teal-11);
+  font-size: var(--font-size-1);
+}
+
+.messageTime {
+  font-size: var(--font-size-00);
+  color: var(--color-neutral-10);
+}
+
+.messageText {
+  color: var(--color-neutral-12);
+  line-height: var(--font-lineheight-3);
+  margin: 0;
+}
+
+.infoCard {
+  background: var(--color-accent-2);
+  border: 1px solid var(--color-accent-5);
+  border-radius: var(--radius-3);
+  padding: var(--space-5);
+}
+
+.infoTitle {
+  font-size: var(--font-size-2);
+  font-weight: 600;
+  color: var(--color-accent-12);
+  margin: 0 0 var(--space-3) 0;
+}
+
+.infoList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.infoList li {
+  color: var(--color-accent-11);
+  padding-left: var(--space-4);
+  position: relative;
+}
+
+.infoList li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--color-success-9);
+  font-weight: bold;
+}

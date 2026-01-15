@@ -1,0 +1,106 @@
+.page {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, var(--color-neutral-1) 0%, var(--color-neutral-2) 100%);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-5);
+}
+
+.cityPulse {
+  margin-bottom: var(--space-7);
+}
+
+.mapSection {
+  margin-bottom: var(--space-7);
+}
+
+.sectionTitle {
+  font-family: var(--font-heading);
+  font-size: var(--font-size-5);
+  font-weight: 700;
+  color: var(--color-neutral-12);
+  margin-bottom: var(--space-2);
+}
+
+.sectionDescription {
+  font-size: var(--font-size-1);
+  color: var(--color-neutral-11);
+  margin-bottom: var(--space-4);
+  max-width: 600px;
+}
+
+.filters {
+  display: flex;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.filterButton {
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-2);
+  border: 1px solid var(--color-neutral-5);
+  background: var(--color-neutral-1);
+  color: var(--color-neutral-11);
+  font-size: var(--font-size-1);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-out);
+}
+
+.filterButton:hover {
+  border-color: var(--color-accent-7);
+  background: var(--color-accent-2);
+}
+
+.filterButton.active {
+  background: var(--color-accent-9);
+  color: var(--color-accent-contrast);
+  border-color: var(--color-accent-9);
+}
+
+.issuesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: var(--space-5);
+}
+
+.empty {
+  text-align: center;
+  padding: var(--space-9);
+  color: var(--color-neutral-10);
+}
+
+.emptyIcon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto var(--space-4);
+  color: var(--color-neutral-7);
+}
+
+.emptyTitle {
+  font-size: var(--font-size-3);
+  font-weight: 600;
+  color: var(--color-neutral-11);
+  margin-bottom: var(--space-2);
+}
+
+.mapPlaceholder {
+  height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-neutral-2);
+  border-radius: var(--radius-3);
+  color: var(--color-neutral-10);
+  font-size: var(--font-size-2);
+}
+
+@media (max-width: 768px) {
+  .issuesGrid {
+    grid-template-columns: 1fr;
+  }
+}

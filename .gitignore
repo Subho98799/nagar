@@ -1,0 +1,68 @@
+# ========================
+# Python
+# ========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv/
+build/
+dist/
+*.egg-info/
+
+# ========================
+# Environment variables
+# ========================
+.env
+.env.local
+
+# ========================
+# Firebase / Secrets
+# ========================
+serviceAccountKey.json
+firebase-credentials.json
+*-firebase-adminsdk-*.json
+/secrets/
+
+# ========================
+# Node / Frontend
+# ========================
+node_modules/
+.react-router/
+build/
+dist/
+
+# ========================
+# IDE
+# ========================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ========================
+# OS
+# ========================
+.DS_Store
+Thumbs.db
+
+# ========================
+# Logs & Tests
+# ========================
+*.log
+logs/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ========================
+# Deployment
+# ========================
+.vercel
+.railway
+.netlify

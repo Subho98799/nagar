@@ -1,0 +1,137 @@
+.card {
+  background: var(--color-neutral-1);
+  border: 1px solid var(--color-neutral-5);
+  border-radius: var(--radius-3);
+  padding: var(--space-5);
+  transition: all 0.2s var(--ease-out);
+  cursor: pointer;
+}
+
+.card:hover {
+  border-color: var(--color-accent-7);
+  box-shadow: var(--shadow-2);
+  transform: translateY(-2px);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.titleSection {
+  flex: 1;
+}
+
+.title {
+  font-size: var(--font-size-2);
+  font-weight: 600;
+  color: var(--color-neutral-12);
+  margin: 0 0 var(--space-2) 0;
+}
+
+.location {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-neutral-11);
+  font-size: var(--font-size-0);
+}
+
+.locationIcon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.badges {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.description {
+  color: var(--color-neutral-11);
+  font-size: var(--font-size-1);
+  line-height: var(--font-lineheight-3);
+  margin-bottom: var(--space-4);
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-neutral-4);
+  flex-wrap: wrap;
+}
+
+.metadata {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  font-size: var(--font-size-0);
+  color: var(--color-neutral-10);
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.metaIcon {
+  width: 14px;
+  height: 14px;
+}
+
+.confidenceBadge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-2);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.confidenceBadge.low {
+  background: var(--color-neutral-3);
+  color: var(--color-neutral-11);
+  border: 1px solid var(--color-neutral-6);
+}
+
+.confidenceBadge.medium {
+  background: var(--amber-3);
+  color: var(--amber-11);
+  border: 1px solid var(--amber-6);
+}
+
+.confidenceBadge.high {
+  background: var(--green-3);
+  color: var(--green-11);
+  border: 1px solid var(--green-6);
+}
+
+.confidenceIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.severityHigh {
+  color: var(--crimson-11);
+  font-weight: 600;
+}
+
+.severityMedium {
+  color: var(--blue-11);
+  font-weight: 600;
+}
+
+.severityLow {
+  color: var(--jade-11);
+  font-weight: 600;
+}

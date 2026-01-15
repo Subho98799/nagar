@@ -1,0 +1,143 @@
+.page {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, var(--color-neutral-1) 0%, var(--color-neutral-2) 100%);
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-5);
+}
+
+.header {
+  margin-bottom: var(--space-6);
+}
+
+.title {
+  font-family: var(--font-heading);
+  font-size: var(--font-size-7);
+  font-weight: 700;
+  color: var(--color-neutral-12);
+  margin-bottom: var(--space-3);
+}
+
+.description {
+  font-size: var(--font-size-2);
+  color: var(--color-neutral-11);
+  max-width: 700px;
+  line-height: 1.6;
+  margin-bottom: var(--space-5);
+}
+
+.stats {
+  display: flex;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.statValue {
+  font-family: var(--font-heading);
+  font-size: var(--font-size-6);
+  font-weight: 700;
+  color: var(--color-accent-11);
+}
+
+.statLabel {
+  font-size: var(--font-size-0);
+  color: var(--color-neutral-10);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.map {
+  height: 600px;
+  margin-bottom: var(--space-6);
+}
+
+.legend {
+  background: var(--color-neutral-1);
+  border: 1px solid var(--color-neutral-5);
+  border-radius: var(--radius-3);
+  padding: var(--space-5);
+}
+
+.legendTitle {
+  font-family: var(--font-heading);
+  font-size: var(--font-size-3);
+  font-weight: 600;
+  color: var(--color-neutral-12);
+  margin-bottom: var(--space-4);
+}
+
+.legendItems {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--font-size-1);
+  color: var(--color-neutral-11);
+}
+
+.legendMarker {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 3px solid;
+  background: white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
+}
+
+.legendMarker.high {
+  border-color: var(--color-error-9);
+}
+
+.legendMarker.medium {
+  border-color: var(--color-accent-9);
+}
+
+.legendMarker.low {
+  border-color: var(--color-success-9);
+}
+
+.mapPlaceholder {
+  height: 600px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-neutral-2);
+  border-radius: var(--radius-3);
+  color: var(--color-neutral-10);
+  font-size: var(--font-size-2);
+  margin-bottom: var(--space-6);
+}
+
+@media (max-width: 768px) {
+  .title {
+    font-size: var(--font-size-5);
+  }
+
+  .map {
+    height: 450px;
+  }
+
+  .stats {
+    gap: var(--space-4);
+  }
+
+  .stat {
+    min-width: 120px;
+  }
+}

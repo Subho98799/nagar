@@ -1,0 +1,75 @@
+.charts {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.chartContainer {
+  padding: 1rem;
+  background: var(--color-neutral-2);
+  border-radius: 8px;
+}
+
+.chartTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--color-foreground);
+}
+
+.heatmapInfo {
+  padding: 1rem;
+  background: var(--color-background);
+  border-radius: 6px;
+}
+
+.heatmapInfo p {
+  margin: 0.5rem 0;
+  color: var(--color-muted-foreground);
+}
+
+.heatmapNote {
+  font-size: 0.875rem;
+  font-style: italic;
+}
+
+.scoresSummary {
+  padding: 1rem;
+  background: var(--color-neutral-2);
+  border-radius: 8px;
+}
+
+.scoresGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+}
+
+.scoreItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem;
+  background: var(--color-background);
+  border-radius: 6px;
+  text-align: center;
+}
+
+.scoreLabel {
+  font-size: 0.75rem;
+  color: var(--color-muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.scoreValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-foreground);
+}
+
+@media (max-width: 768px) {
+  .scoresGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

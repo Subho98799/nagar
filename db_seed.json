@@ -1,0 +1,68 @@
+{
+  "reports": {
+    "r1": {
+      "title": "Heavy traffic near Main Chowk",
+      "description": "Multiple citizens reporting slow-moving traffic. Possible accident.",
+      "issue_type": "Traffic & Roads",
+      "severity": "MEDIUM",
+      "confidence": "MEDIUM",
+      "latitude": 12.9718,
+      "longitude": 77.5940,
+      "city": "Demo City",
+      "locality": "Main Chowk, Station Road",
+      "reporter_name": "Alice",
+      "ip_address": "203.0.113.45",
+      "ai_metadata": {},
+      "status": "UNDER_OBSERVATION",
+      "created_at": "2024-01-15T10:15:00",
+      "updated_at": "2024-01-15T10:15:00"
+    },
+    "r2": {
+      "title": "Power outage in Sector 7",
+      "description": "Residents reporting power cut since morning. Affecting approximately 200 households.",
+      "issue_type": "Electricity",
+      "severity": "HIGH",
+      "confidence": "MEDIUM",
+      "latitude": 12.9725,
+      "longitude": 77.5950,
+      "city": "Demo City",
+      "locality": "Sector 7, Residential Area",
+      "reporter_name": "Bob",
+      "ip_address": "203.0.113.46",
+      "ai_metadata": {},
+      "status": "CONFIRMED",
+      "created_at": "2024-01-15T09:30:00",
+      "updated_at": "2024-01-15T09:30:00"
+    }
+  },
+  "issues": {
+    "i1": {
+      "title": "Traffic slowdown at Main Chowk",
+      "description": "Clustered reports indicate slow-moving traffic near Main Chowk.",
+      "issue_type": "Traffic & Roads",
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "latitude": 12.9718,
+      "longitude": 77.5940,
+      "city": "Demo City",
+      "report_count": 12,
+      "report_ids": ["r1"],
+      "created_at": "2024-01-15T10:15:00",
+      "updated_at": "2024-01-15T11:30:00",
+      "status": "CONFIRMED",
+      "operatorNotes": [],
+      "timeline": [
+        { "id": "t1", "timestamp": "2024-01-15T10:15:00", "time": "10:15 AM", "confidence": "Low", "description": "First reports received" },
+        { "id": "t3", "timestamp": "2024-01-15T11:30:00", "time": "11:30 AM", "confidence": "High", "description": "Pattern confirmed across reports" }
+      ]
+    }
+  },
+  "cities": {
+    "demo-city": {
+      "name": "Demo City",
+      "slug": "demo-city",
+      "center_lat": 12.9716,
+      "center_lng": 77.5946
+    }
+  }
+}

@@ -40,6 +40,10 @@ export type ServerIssue = {
   created_at: string;
   updated_at: string;
   operatorNotes?: string | null;
+  // Phase-4: Optional reverse-geocoded address fields (read-only display)
+  resolved_address?: string | null;
+  resolved_locality?: string | null;
+  resolved_city?: string | null;
 };
 
 async function fetchJSON(url: string) {

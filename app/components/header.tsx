@@ -1,9 +1,10 @@
 import { Link, useLocation, useNavigate } from "react-router";
 import { useState, useEffect } from "react";
-import { Radio, FileText, Shield, MessageSquare, Map, User, LogOut, Clock } from "lucide-react";
+import { Radio, FileText, Shield, MessageSquare, Map, User, LogOut, Clock, Activity } from "lucide-react";
 import { getCurrentUser, logout, isAuthenticated } from "~/lib/auth";
 import type { AuthUser } from "~/lib/auth";
 import { Button } from "~/components/ui/button/button";
+import { ENABLE_TIMELINE } from "~/lib/config";
 import styles from "./header.module.css";
 
 export function Header() {
@@ -44,6 +45,10 @@ export function Header() {
             <Radio className={styles.navIcon} />
             <span>Dashboard</span>
           </Link>
+          <Link to="/city-overview" className={`${styles.navLink} ${isActive("/city-overview") ? styles.active : ""}`}>
+            <Activity className={styles.navIcon} />
+            <span>City Pulse</span>
+          </Link>
           <Link to="/map" className={`${styles.navLink} ${isActive("/map") ? styles.active : ""}`}>
             <Map className={styles.navIcon} />
             <span>Map</span>
@@ -60,10 +65,12 @@ export function Header() {
             <Shield className={styles.navIcon} />
             <span>Admin</span>
           </Link>
-          <Link to="/timeline" className={`${styles.navLink} ${isActive("/timeline") ? styles.active : ""}`}>
-            <Clock className={styles.navIcon} />
-            <span>Timeline</span>
-          </Link>
+          {ENABLE_TIMELINE && (
+            <Link to="/timeline" className={`${styles.navLink} ${isActive("/timeline") ? styles.active : ""}`}>
+              <Clock className={styles.navIcon} />
+              <span>Timeline</span>
+            </Link>
+          )}
         </nav>
 
         <div className={styles.userSection}>

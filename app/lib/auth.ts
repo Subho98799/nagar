@@ -2,7 +2,7 @@
  * Authentication utilities and API functions.
  */
 
-import { API_BASE_URL } from "./config";
+import { API_BASE_URL, ADMIN_PHONE_ALLOWLIST } from "./config";
 
 export interface AuthUser {
   id: string;
@@ -114,4 +114,19 @@ export function isAuthenticated(): boolean {
 export function logout(): void {
   localStorage.removeItem("auth_token");
   localStorage.removeItem("auth_user");
+}
+
+/**
+ * Admin check (frontend-only guard).
+ * This is NOT security; it's a demo/judging guardrail to keep analytics/admin-only surfaces out of the citizen UX.
+ */
+export function isAdminUser(): boolean {
+  try {
+    const user = getCurrentUser();
+    if (!user?.phone_number) return false;
+    const normalized = String(user.phone_number).replace(/\D/g, "");
+    return Array.isArray(ADMIN_PHONE_ALLOWLIST) && ADMIN_PHONE_ALLOWLIST.includes(normalized);
+  } catch {
+    return false;
+  }
 }

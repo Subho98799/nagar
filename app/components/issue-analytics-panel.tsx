@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { X, ThumbsUp, ThumbsDown, MessageCircle, TrendingUp, AlertCircle, MapPin } from "lucide-react";
 import { fetchIssueAnalytics, addComment, fetchIssueComments, type IssueAnalytics, type Comment } from "~/lib/timeline";
-import { isAuthenticated } from "~/lib/auth";
+import { isAuthenticated, isAdminUser } from "~/lib/auth";
+import { ENABLE_ADMIN_ANALYTICS, ENABLE_SIGNAL_INPUTS } from "~/lib/config";
 import { Button } from "~/components/ui/button/button";
 import { Textarea } from "~/components/ui/textarea/textarea";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from "recharts";
@@ -139,6 +140,12 @@ export function IssueAnalyticsPanel({ issueId, onClose, onCommentAdded }: IssueA
       </div>
 
       <div className={styles.content}>
+        {!ENABLE_ADMIN_ANALYTICS || !isAdminUser() ? (
+          <div className={styles.error}>
+            Admin analytics are disabled for the public demo. This panel is intended for moderators only.
+          </div>
+        ) : (
+          <>
         {/* Scores Section */}
         <section className={styles.section}>
           <h3 className={styles.sectionTitle}>Scores</h3>
@@ -293,7 +300,7 @@ export function IssueAnalyticsPanel({ issueId, onClose, onCommentAdded }: IssueA
             Comments ({analytics.total_comments})
           </h3>
 
-          {isAuthenticated() && (
+          {ENABLE_SIGNAL_INPUTS && isAuthenticated() && (
             <div className={styles.commentForm}>
               <Textarea
                 placeholder="Add a comment..."
@@ -341,6 +348,8 @@ export function IssueAnalyticsPanel({ issueId, onClose, onCommentAdded }: IssueA
             )}
           </div>
         </section>
+          </>
+        )}
       </div>
     </div>
   );

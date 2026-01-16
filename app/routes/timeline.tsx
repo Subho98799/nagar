@@ -3,8 +3,8 @@ import { Header } from "~/components/header";
 import { TimelinePost } from "~/components/timeline-post";
 import { IssueAnalyticsPanel } from "~/components/issue-analytics-panel";
 import { fetchTimelineFeed, type TimelineIssue } from "~/lib/timeline";
-import { isAuthenticated } from "~/lib/auth";
-import { useNavigate } from "react-router";
+import { isAuthenticated, isAdminUser } from "~/lib/auth";
+import { ENABLE_ADMIN_ANALYTICS, ENABLE_TIMELINE } from "~/lib/config";
 import styles from "./timeline.module.css";
 
 export default function Timeline() {
@@ -12,17 +12,12 @@ export default function Timeline() {
   const [loading, setLoading] = useState(true);
   const [selectedIssueId, setSelectedIssueId] = useState<string | null>(null);
   const [showAnalytics, setShowAnalytics] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
-    // Redirect to login if not authenticated
-    if (!isAuthenticated()) {
-      navigate("/login");
-      return;
-    }
-
+    // Governance-first: timeline is optional and MUST NOT force authentication.
+    // Anonymous/low-friction flows remain primary; auth gates only interaction signals.
     loadTimeline();
-  }, [navigate]);
+  }, []);
 
   const loadTimeline = async () => {
     try {
@@ -37,8 +32,11 @@ export default function Timeline() {
   };
 
   const handlePostClick = (issueId: string) => {
-    setSelectedIssueId(issueId);
-    setShowAnalytics(true);
+    // Analytics/charts are admin-only (demo guardrail; not security).
+    if (ENABLE_ADMIN_ANALYTICS && isAdminUser()) {
+      setSelectedIssueId(issueId);
+      setShowAnalytics(true);
+    }
   };
 
   const handleCloseAnalytics = () => {
@@ -67,7 +65,23 @@ export default function Timeline() {
             <p className={styles.subtitle}>Stay updated with all civic issues in your city</p>
           </div>
 
-          <div className={styles.feed}>
+          {!ENABLE_TIMELINE && (
+            <div className={styles.empty}>
+              <p>
+                Timeline is currently disabled for the public demo. Use the Dashboard + Map for the core civic workflow.
+              </p>
+            </div>
+          )}
+
+          {ENABLE_TIMELINE && !isAuthenticated() && (
+            <div className={styles.empty}>
+              <p>
+                You can browse issues anonymously. Login is only required if you want to leave moderation signals (votes/notes).
+              </p>
+            </div>
+          )}
+
+          {ENABLE_TIMELINE && <div className={styles.feed}>
             {issues.length === 0 ? (
               <div className={styles.empty}>
                 <p>No issues found. Be the first to report an issue!</p>
@@ -82,10 +96,10 @@ export default function Timeline() {
                 />
               ))
             )}
-          </div>
+          </div>}
         </div>
 
-        {showAnalytics && selectedIssueId && (
+        {showAnalytics && selectedIssueId && ENABLE_ADMIN_ANALYTICS && isAdminUser() && (
           <IssueAnalyticsPanel
             issueId={selectedIssueId}
             onClose={handleCloseAnalytics}

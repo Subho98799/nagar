@@ -4,11 +4,11 @@ Report service - Business logic for citizen report handling.
 CRITICAL GUARANTEE:
 - Firestore write is SYNCHRONOUS
 - Firestore write happens FIRST
-- No async / enrichment during creation
+- No async / background / enrichment during creation
 """
 
 from datetime import datetime
-from typing import List, Optional
+from typing import List
 
 from firebase_admin import firestore
 
@@ -19,15 +19,21 @@ from app.services.status_workflow import ReportStatus, StatusWorkflowEngine
 
 
 # ------------------------------------------------------------------
-# CORE CREATE
+# 🔥 CORE FIX: SYNCHRONOUS FIRESTORE WRITE
 # ------------------------------------------------------------------
 
 def create_report_sync(report_data: ReportCreate) -> dict:
+    """
+    Synchronous Firestore write.
+    This function MUST succeed or throw.
+    """
+
     db = get_db()
     if db is None:
         raise RuntimeError("Firestore DB not initialized")
 
-    doc_ref = db.collection("reports").document()
+    reports_ref = db.collection("reports")
+    doc_ref = reports_ref.document()
     report_id = doc_ref.id
 
     city = ensure_city_not_null(
@@ -39,22 +45,11 @@ def create_report_sync(report_data: ReportCreate) -> dict:
 
     workflow = StatusWorkflowEngine()
     initial_status = ReportStatus.UNDER_REVIEW.value
-    created_at = datetime.utcnow()
 
-    # Create status_history entry with datetime (not SERVER_TIMESTAMP) for JSON serialization
-    # Since we're creating synchronously, we can use the exact creation time
-    status_history_entry = {
-        "from": "",
-        "to": initial_status,
-        "changed_by": "system",
-        "timestamp": created_at,
-        "note": "Report created"
-    }
-
-    payload = {
+    firestore_payload = {
         "id": report_id,
         "description": report_data.description,
-        "issue_type": report_data.issue_type,
+        "issue_type": report_data.issue_type or "",
         "city": city,
         "locality": report_data.locality,
         "latitude": report_data.latitude,
@@ -65,7 +60,14 @@ def create_report_sync(report_data: ReportCreate) -> dict:
         "user_entered_location": report_data.user_entered_location,
         "location_source": report_data.location_source,
         "status": initial_status,
-        "status_history": [status_history_entry],
+        "status_history": [
+            workflow.create_status_history_entry(
+                from_status="",
+                to_status=initial_status,
+                changed_by="system",
+                note="Report created",
+            )
+        ],
         "confidence": "LOW",
         "confidence_reason": "Single report, awaiting corroboration",
         "ai_metadata": {},
@@ -74,18 +76,30 @@ def create_report_sync(report_data: ReportCreate) -> dict:
         "escalation_flag": False,
         "escalation_reason": None,
         "escalation_history": [],
-        "created_at": created_at,
+        "created_at": firestore.SERVER_TIMESTAMP,
     }
 
-    doc_ref.set(payload)
+    # 🔥 SINGLE SOURCE OF TRUTH WRITE
+    doc_ref.set(firestore_payload)
 
-    if not doc_ref.get().exists:
+    # 🔥 VERIFY WRITE
+    snap = doc_ref.get()
+    if not snap.exists:
         raise RuntimeError("Firestore write verification failed")
 
-    return payload
+    return firestore_payload
 
+
+# ------------------------------------------------------------------
+# ASYNC WRAPPER (THIN, SAFE)
+# ------------------------------------------------------------------
 
 async def create_report(report_data: ReportCreate) -> ReportResponse:
+    """
+    Async wrapper required by FastAPI.
+    Does NOT perform async Firestore operations.
+    """
+
     data = create_report_sync(report_data)
 
     return ReportResponse(
@@ -103,7 +117,10 @@ async def create_report(report_data: ReportCreate) -> ReportResponse:
         status=data["status"],
         ai_metadata=data.get("ai_metadata"),
         status_history=data.get("status_history", []),
-        created_at=data["created_at"],
+
+        # 🔥 FIX: NEVER return Firestore timestamp
+        created_at=datetime.utcnow(),
+
         resolved_address=data.get("resolved_address"),
         resolved_locality=None,
         resolved_city=None,
@@ -115,7 +132,7 @@ async def create_report(report_data: ReportCreate) -> ReportResponse:
 
 
 # ------------------------------------------------------------------
-# READ
+# READ OPERATIONS (UNCHANGED)
 # ------------------------------------------------------------------
 
 async def get_all_reports() -> List[ReportResponse]:
@@ -126,47 +143,50 @@ async def get_all_reports() -> List[ReportResponse]:
         .stream()
     )
 
-    results = []
+    reports = []
     for doc in docs:
-        d = doc.to_dict()
-        results.append(
+        data = doc.to_dict()
+        reports.append(
             ReportResponse(
                 id=doc.id,
-                description=d["description"],
-                issue_type=d.get("issue_type"),
-                city=d["city"],
-                locality=d["locality"],
-                latitude=d["latitude"],
-                longitude=d["longitude"],
-                reporter_name=d.get("reporter_name"),
-                media_urls=d.get("media_urls", []),
-                confidence=d["confidence"],
-                confidence_reason=d["confidence_reason"],
-                status=d["status"],
-                ai_metadata=d.get("ai_metadata"),
-                status_history=d.get("status_history", []),
-                created_at=d["created_at"],
-                resolved_address=d.get("resolved_address"),
-                resolved_locality=d.get("resolved_locality"),
-                resolved_city=d.get("resolved_city"),
-                resolved_state=d.get("resolved_state"),
-                resolved_country=d.get("resolved_country"),
-                geocoding_provider=d.get("geocoding_provider"),
-                geocoded_at=d.get("geocoded_at"),
+                description=data["description"],
+                issue_type=data.get("issue_type"),
+                city=data["city"],
+                locality=data["locality"],
+                latitude=data["latitude"],
+                longitude=data["longitude"],
+                reporter_name=data.get("reporter_name"),
+                media_urls=data.get("media_urls", []),
+                confidence=data["confidence"],
+                confidence_reason=data["confidence_reason"],
+                status=data["status"],
+                ai_metadata=data.get("ai_metadata"),
+                status_history=data.get("status_history", []),
+                created_at=data["created_at"],
+                resolved_address=data.get("resolved_address"),
+                resolved_locality=data.get("resolved_locality"),
+                resolved_city=data.get("resolved_city"),
+                resolved_state=data.get("resolved_state"),
+                resolved_country=data.get("resolved_country"),
+                geocoding_provider=data.get("geocoding_provider"),
+                geocoded_at=data.get("geocoded_at"),
             )
         )
-    return results
 
+    return reports
+# =====================================================================
+# ADMIN / REVIEWER READ & MUTATION HELPERS
+# (Required by app/routes/admin.py)
+# =====================================================================
 
-# ------------------------------------------------------------------
-# ADMIN REQUIRED FUNCTIONS (DO NOT REMOVE)
-# ------------------------------------------------------------------
-
-async def get_report_by_id(report_id: str) -> Optional[dict]:
+async def get_report_by_id(report_id: str) -> dict | None:
     db = get_db()
-    doc = db.collection("reports").document(report_id).get()
+    doc_ref = db.collection("reports").document(report_id)
+    doc = doc_ref.get()
+
     if not doc.exists:
         return None
+
     data = doc.to_dict()
     data["id"] = doc.id
     return data
@@ -175,19 +195,26 @@ async def get_report_by_id(report_id: str) -> Optional[dict]:
 async def upgrade_report_confidence(
     report_id: str,
     confidence: str,
-    admin_note: Optional[str] = None,
+    admin_note: str | None = None,
 ) -> dict:
     db = get_db()
-    ref = db.collection("reports").document(report_id)
+    doc_ref = db.collection("reports").document(report_id)
 
-    ref.update({
+    update_data = {
         "confidence": confidence,
         "confidence_reason": "Upgraded by admin review",
         "reviewed_at": firestore.SERVER_TIMESTAMP,
-        **({"admin_note": admin_note} if admin_note else {}),
-    })
+    }
 
-    doc = ref.get()
+    if admin_note:
+        update_data["admin_note"] = admin_note
+
+    doc_ref.update(update_data)
+
+    doc = doc_ref.get()
+    if not doc.exists:
+        raise RuntimeError("Report not found after confidence upgrade")
+
     data = doc.to_dict()
     data["id"] = doc.id
     return data
@@ -196,18 +223,25 @@ async def upgrade_report_confidence(
 async def update_report_status(
     report_id: str,
     status: str,
-    admin_note: Optional[str] = None,
+    admin_note: str | None = None,
 ) -> dict:
     db = get_db()
-    ref = db.collection("reports").document(report_id)
+    doc_ref = db.collection("reports").document(report_id)
 
-    ref.update({
+    update_data = {
         "status": status,
         "reviewed_at": firestore.SERVER_TIMESTAMP,
-        **({"admin_note": admin_note} if admin_note else {}),
-    })
+    }
 
-    doc = ref.get()
+    if admin_note:
+        update_data["admin_note"] = admin_note
+
+    doc_ref.update(update_data)
+
+    doc = doc_ref.get()
+    if not doc.exists:
+        raise RuntimeError("Report not found after status update")
+
     data = doc.to_dict()
     data["id"] = doc.id
     return data

@@ -81,6 +81,12 @@ class CityPulseResponse(BaseModel):
         }
 
 
+class CitiesListResponse(BaseModel):
+    """Response model for cities list endpoint."""
+    cities: List[str] = Field(..., description="List of city names")
+    count: int = Field(..., description="Number of cities")
+
+
 @router.get("", response_model=CityPulseResponse)
 async def get_city_pulse(
     city: str = Query(
@@ -149,7 +155,7 @@ async def get_city_pulse(
         )
 
 
-@router.get("/cities")
+@router.get("/cities", response_model=CitiesListResponse)
 async def list_available_cities():
     """
     List all cities that have reports in the system.
@@ -164,6 +170,12 @@ async def list_available_cities():
         from app.config.firebase import get_db
         
         db = get_db()
+        if db is None:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Database not initialized"
+            )
+        
         reports_ref = db.collection("reports")
         
         # Get all unique cities
@@ -171,16 +183,26 @@ async def list_available_cities():
         
         cities = set()
         for doc in docs:
-            data = doc.to_dict()
-            city = data.get("city", "").strip()
-            if city:
-                cities.add(city)
+            try:
+                data = doc.to_dict()
+                if data is None:
+                    continue
+                city = data.get("city")
+                if city and isinstance(city, str):
+                    city = city.strip()
+                    if city:
+                        cities.add(city)
+            except Exception as doc_error:
+                # Skip problematic documents, continue processing others
+                continue
         
         return {
             "cities": sorted(list(cities)),
             "count": len(cities)
         }
     
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

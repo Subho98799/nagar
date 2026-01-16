@@ -36,6 +36,10 @@ class MapIssue(BaseModel):
     updated_at: str
     timeline: Optional[List[TimelineEvent]] = []
     operatorNotes: Optional[str] = None
+    # Phase-4: Optional reverse-geocoded address fields (read-only display)
+    resolved_address: Optional[str] = None
+    resolved_locality: Optional[str] = None
+    resolved_city: Optional[str] = None
 
 
 router = APIRouter(prefix="/map", tags=["Map"])

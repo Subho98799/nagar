@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ThumbsUp, ThumbsDown, MessageCircle, TrendingUp, TrendingDown, MapPin, Clock, Users, AlertCircle } from "lucide-react";
 import { voteOnIssue, type TimelineIssue } from "~/lib/timeline";
 import { isAuthenticated } from "~/lib/auth";
+import { ENABLE_SIGNAL_INPUTS } from "~/lib/config";
 import { Button } from "~/components/ui/button/button";
 import { Badge } from "~/components/ui/badge/badge";
 import styles from "./timeline-post.module.css";
@@ -106,42 +107,48 @@ export function TimelinePost({ issue, onClick, onVoteChange }: TimelinePostProps
       </div>
 
       <div className={styles.actions}>
-        <Button
-          variant={userVote === "UPVOTE" ? "default" : "ghost"}
-          size="sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleVote("UPVOTE");
-          }}
-          disabled={isVoting}
-          className={styles.actionButton}
-        >
-          <ThumbsUp className={styles.actionIcon} />
-          <span>{localUpvotes}</span>
-        </Button>
-
-        <Button
-          variant={userVote === "DOWNVOTE" ? "destructive" : "ghost"}
-          size="sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleVote("DOWNVOTE");
-          }}
-          disabled={isVoting}
-          className={styles.actionButton}
-        >
-          <ThumbsDown className={styles.actionIcon} />
-          <span>{localDownvotes}</span>
-        </Button>
-
         <div className={`${styles.popularity} ${styles[popularityColor]}`}>
           {issue.popularity_score > 0 ? (
             <TrendingUp className={styles.popularityIcon} />
           ) : issue.popularity_score < 0 ? (
             <TrendingDown className={styles.popularityIcon} />
           ) : null}
-          <span>Popularity: {issue.popularity_score}</span>
+          <span>Signal: {issue.popularity_score}</span>
         </div>
+
+        {ENABLE_SIGNAL_INPUTS && (
+          <>
+            <Button
+              variant={userVote === "UPVOTE" ? "default" : "ghost"}
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleVote("UPVOTE");
+              }}
+              disabled={isVoting}
+              className={styles.actionButton}
+              title="Non-authoritative signal for moderators"
+            >
+              <ThumbsUp className={styles.actionIcon} />
+              <span>{localUpvotes}</span>
+            </Button>
+
+            <Button
+              variant={userVote === "DOWNVOTE" ? "destructive" : "ghost"}
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleVote("DOWNVOTE");
+              }}
+              disabled={isVoting}
+              className={styles.actionButton}
+              title="Non-authoritative signal for moderators"
+            >
+              <ThumbsDown className={styles.actionIcon} />
+              <span>{localDownvotes}</span>
+            </Button>
+          </>
+        )}
 
         <Button
           variant="ghost"
@@ -151,6 +158,7 @@ export function TimelinePost({ issue, onClick, onVoteChange }: TimelinePostProps
             onClick();
           }}
           className={styles.actionButton}
+          title={ENABLE_SIGNAL_INPUTS ? "Open admin analytics panel" : "Admin analytics disabled"}
         >
           <MessageCircle className={styles.actionIcon} />
           <span>{issue.comment_count}</span>

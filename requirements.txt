@@ -12,6 +12,9 @@ firebase-admin==6.5.0
 # Python environment variables
 python-dotenv==1.0.1
 
+# HTTP client for reverse geocoding (OpenStreetMap Nominatim, optional Google Maps)
+requests==2.32.3
+
 # Future dependencies (commented out for now):
 # google-generativeai  # For Gemini API (Step 2+)
 # twilio  # For WhatsApp Business API (Step 3+)

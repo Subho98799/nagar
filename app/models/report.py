@@ -27,8 +27,16 @@ class ReportCreate(BaseModel):
     These are the fields citizens provide when submitting a report.
     """
     description: str = Field(..., min_length=5, max_length=1000, description="What the citizen observed")
-    issue_type: str = Field(..., min_length=1, max_length=100, description="Type of issue (from form select)")
-    city: Optional[str] = Field(None, min_length=2, max_length=100, description="City name (optional until frontend sends)")
+    
+    #issue_type: str = Field(..., min_length=1, max_length=100, description="Type of issue (from form select)")
+    issue_type: Optional[str] = Field(
+    None,
+    max_length=100,
+    description="Type of issue (optional during submission)"
+)
+    # City is optional and may be omitted or sent as an empty string by the frontend.
+    # Do NOT enforce a minimum length here; backend will normalize via ensure_city_not_null.
+    city: Optional[str] = Field(None, max_length=100, description="City name (optional until frontend sends)")
     locality: str = Field(..., min_length=1, max_length=200, description="Neighborhood or locality")
     latitude: Optional[float] = Field(None, ge=-90, le=90, description="Latitude coordinate (optional if frontend omits)")
     longitude: Optional[float] = Field(None, ge=-180, le=180, description="Longitude coordinate (optional if frontend omits)")
@@ -36,6 +44,10 @@ class ReportCreate(BaseModel):
     ip_address: Optional[str] = Field(None, description="Reporter IP address (best-effort capture)")
     reporter_context: ReporterContext = Field(default=ReporterContext.CITIZEN, description="Optional reporter context")
     media_urls: Optional[List[str]] = Field(None, description="Optional list of image/video URLs")
+    # Frontend location fields (user-initiated geocoding)
+    resolved_address: Optional[str] = Field(None, max_length=500, description="Address resolved from coordinates (frontend geocoding)")
+    user_entered_location: Optional[str] = Field(None, max_length=500, description="Location text entered/edited by user")
+    location_source: Optional[str] = Field(None, description="Source: frontend-geocoded | backend-geocoded | manual")
 
     class Config:
         json_schema_extra = {
@@ -106,6 +118,14 @@ class ReportResponse(BaseModel):
     escalation_flag: bool = Field(default=False, description="Whether report is flagged for escalation")
     escalation_reason: Optional[str] = Field(None, description="Reason for escalation flag")
     escalation_history: List[Dict] = Field(default_factory=list, description="Escalation flag change history")
+    # Phase-4: Optional reverse-geocoded address fields (additive only)
+    resolved_address: Optional[str] = Field(default=None, description="Human-readable address derived from coordinates")
+    resolved_locality: Optional[str] = Field(default=None, description="Resolved neighbourhood/locality (if available)")
+    resolved_city: Optional[str] = Field(default=None, description="Resolved city (if available)")
+    resolved_state: Optional[str] = Field(default=None, description="Resolved state/region (if available)")
+    resolved_country: Optional[str] = Field(default=None, description=" Resolved country (if available)")
+    geocoding_provider: Optional[str] = Field(default=None, description="Which provider was used for reverse geocoding")
+    geocoded_at: Optional[datetime] = Field(default=None, description="When reverse geocoding was attempted")
     
     class Config:
         json_schema_extra = {

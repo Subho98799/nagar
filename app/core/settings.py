@@ -33,6 +33,12 @@ class Settings(BaseSettings):
     AI_ENABLED: bool = True  # Enable/disable AI (if False, uses mock provider only)
     GEMINI_API_KEY: Optional[str] = None  # Google Gemini API key (optional)
     AI_TIMEOUT_SECONDS: float = 10.0  # AI inference timeout
+
+    # Geocoding (Phase-4 address resolution)
+    # - GEOCODING_PROVIDER: "nominatim" (default, no API key) or "google"
+    # - GOOGLE_MAPS_API_KEY: optional; only used when provider is "google"
+    GEOCODING_PROVIDER: str = "nominatim"
+    GOOGLE_MAPS_API_KEY: Optional[str] = None
     
     class Config:
         env_file = ".env"

@@ -22,6 +22,9 @@ export default function Report() {
   const [reporterName, setReporterName] = useState<string>("");
   // Visual flag for temporary marker shown after capturing location
   const [showTempMarker, setShowTempMarker] = useState(false);
+  // Track location source and resolved address
+  const [locationSource, setLocationSource] = useState<string>("manual");
+  const [resolvedAddress, setResolvedAddress] = useState<string>("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,6 +85,10 @@ export default function Report() {
           longitude: payload.longitude,
           reporter_name: payload.reporter_name,
           ip_address: payload.ip_address,
+          // Frontend location fields
+          resolved_address: resolvedAddress || undefined,
+          user_entered_location: formData.location || undefined,
+          location_source: locationSource || "manual",
         }),
       });
     } catch (err) {
@@ -97,6 +104,8 @@ export default function Report() {
       setReporterName("");
       setCoords({});
       setShowTempMarker(false);
+      setLocationSource("manual");
+      setResolvedAddress("");
       // Remove one-time stored location
       try {
         localStorage.removeItem("nagar_user_location");
@@ -113,7 +122,7 @@ export default function Report() {
 
     // Request permission and capture position once.
     navigator.geolocation.getCurrentPosition(
-      (position) => {
+      async (position) => {
         const lat = position.coords.latitude;
         const lon = position.coords.longitude;
         setCoords({ latitude: lat, longitude: lon });
@@ -129,6 +138,44 @@ export default function Report() {
         try {
           window.dispatchEvent(new CustomEvent("nagar:user-location", { detail: { latitude: lat, longitude: lon } }));
         } catch (e) {}
+
+        // Reverse geocode using OpenStreetMap Nominatim (NO API KEY required)
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 3000); // 3s timeout
+          
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`,
+            {
+              signal: controller.signal,
+              headers: {
+                'User-Agent': 'NagarAlertHub/1.0'
+              }
+            }
+          );
+          
+          clearTimeout(timeoutId);
+          
+          if (response.ok) {
+            const data = await response.json();
+            const address = data.display_name || 
+                          [data.address?.suburb, data.address?.city, data.address?.state]
+                            .filter(Boolean)
+                            .join(", ");
+            
+            if (address && !formData.location) {
+              // Auto-fill only if field is empty
+              setFormData({ ...formData, location: address });
+              setResolvedAddress(address);
+              setLocationSource("frontend-geocoded");
+            }
+          }
+        } catch (err: any) {
+          // Silent fallback - only log non-abort errors
+          if (err.name !== "AbortError") {
+            console.error("Reverse geocoding failed:", err);
+          }
+        }
       },
       (err) => {
         console.warn("Geolocation failed:", err);
@@ -223,9 +270,16 @@ export default function Report() {
               </div>
 
               <span className={styles.helpText}>Provide a landmark or street name that others will recognize</span>
-              <div style={{ marginTop: 6 }} className={styles.helpText}>
-                <small>Location is used only for this report.</small>
-              </div>
+              {resolvedAddress && locationSource === "frontend-geocoded" && (
+                <div style={{ marginTop: 6 }} className={styles.helpText}>
+                  <small>Address auto-detected from location. You can edit if needed.</small>
+                </div>
+              )}
+              {!resolvedAddress && (
+                <div style={{ marginTop: 6 }} className={styles.helpText}>
+                  <small>Location is used only for this report.</small>
+                </div>
+              )}
 
               {showTempMarker && coords.latitude && coords.longitude && (
                 <div className={styles.tempMarker}>

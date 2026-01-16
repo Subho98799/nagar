@@ -11,8 +11,12 @@ DESIGN PRINCIPLES:
 - Simple, demo-safe, hackathon-feasible
 """
 
-from fastapi import FastAPI
+import sys
+import traceback
+from fastapi import FastAPI, Request, status
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from app.core.settings import settings
 from app.config.firebase import initialize_firestore
 from app.routes import health
@@ -27,10 +31,56 @@ app = FastAPI(
 )
 
 
-# CORS configuration - Allow frontend to access API
+# Global exception handler to catch ALL exceptions
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    """Catch all unhandled exceptions and log them with full traceback."""
+    sys.stderr.write("=" * 80 + "\n")
+    sys.stderr.write("🔥 GLOBAL EXCEPTION HANDLER CAUGHT EXCEPTION\n")
+    sys.stderr.write(f"Path: {request.url.path}\n")
+    sys.stderr.write(f"Method: {request.method}\n")
+    sys.stderr.write("=" * 80 + "\n")
+    sys.stderr.write(traceback.format_exc())
+    sys.stderr.write("=" * 80 + "\n")
+    sys.stderr.flush()
+    
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={"detail": f"Internal server error: {str(exc)}"}
+    )
+
+
+# Pydantic validation error handler
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    """Catch Pydantic validation errors and log them."""
+    sys.stderr.write("=" * 80 + "\n")
+    sys.stderr.write("🔥 VALIDATION ERROR HANDLER\n")
+    sys.stderr.write(f"Path: {request.url.path}\n")
+    sys.stderr.write(f"Method: {request.method}\n")
+    sys.stderr.write(f"Errors: {exc.errors()}\n")
+    sys.stderr.write("=" * 80 + "\n")
+    sys.stderr.flush()
+    
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content={"detail": exc.errors(), "body": exc.body}
+    )
+
+
+# CORS configuration - allow only local dev frontends to call the API.
+# Governance note:
+# - This is intentionally narrow (no wildcard origins) to keep the backend
+#   locked to local development hosts. For production, configure allowed
+#   origins explicitly via settings, not "*".
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS.split(","),
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:5174",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -84,10 +134,6 @@ app.include_router(map.router)
 # Import and include auth routes
 from app.routes import auth
 app.include_router(auth.router)
-
-# Import and include timeline routes
-from app.routes import timeline
-app.include_router(timeline.router)
 
 # Import and include timeline routes
 from app.routes import timeline

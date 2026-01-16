@@ -85,6 +85,11 @@ async def vote_on_issue(
     """
     Vote on an issue (upvote or downvote).
     
+    GOVERNANCE NOTE:
+    - Votes are NON-AUTHORITATIVE signals only.
+    - They MUST NOT change confidence, priority_score, status, or escalation automatically.
+    - Intended for moderator triage, not social engagement.
+
     If user already voted with same type, vote is removed (toggle).
     If user voted with different type, vote is updated.
     """

@@ -51,11 +51,20 @@ export default function IssueDetail() {
           return "Other";
         })();
 
+        // Address display priority: resolved_address > resolved_locality > locality > lat/lng
+        const displayLocation = (() => {
+          if (s.resolved_address) return s.resolved_address;
+          if (s.resolved_locality) return s.resolved_locality;
+          if (s.locality) return `${s.locality}${s.city ? `, ${s.city}` : ""}`.trim();
+          if (s.latitude != null && s.longitude != null) return `${s.latitude.toFixed(4)}, ${s.longitude.toFixed(4)}`;
+          return s.city || "";
+        })();
+
         const mapped = {
           id: s.id,
           type: issueType,
           title: s.title,
-          location: s.locality ? `${s.locality}, ${s.city || ""}`.trim().replace(/, $/, "") : s.city || "",
+          location: displayLocation,
           description: s.description,
           severity: s.severity as any,
           confidence: s.confidence === "HIGH" ? "High" : s.confidence === "MEDIUM" ? "Medium" : "Low",

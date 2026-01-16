@@ -141,6 +141,10 @@ def get_city_issues(city: str) -> List[Dict[str, Any]]:
             "updated_at": updated_at.isoformat() if updated_at else "",
             "timeline": timeline,
             "operatorNotes": data.get("operatorNotes") or None,
+            # Phase-4: Pass through resolved address fields if available (read-only display)
+            "resolved_address": data.get("resolved_address") or None,
+            "resolved_locality": data.get("resolved_locality") or None,
+            "resolved_city": data.get("resolved_city") or None,
         }
         
         issues.append(issue_obj)

@@ -40,6 +40,13 @@ from app.services.whatsapp_service import get_whatsapp_service
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
 
+# Phase 5B: Issue confidence recalculation
+from app.services.issue_confidence_engine import (
+    recalculate_issue_confidence,
+    recalculate_all_issues_confidence
+)
+
+
 # Enums for validation
 class ConfidenceLevel(str, Enum):
     """
@@ -595,4 +602,99 @@ async def get_whatsapp_alert_logs(limit: int = 50):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to retrieve alert logs: {str(e)}"
+        )
+
+
+@router.post("/issues/{issue_id}/recalculate-confidence")
+async def recalculate_issue_confidence_endpoint(issue_id: str):
+    """
+    Recalculate confidence for a specific issue.
+    
+    Phase 5B: This endpoint triggers a deterministic recalculation
+    of issue confidence based on current linked reports.
+    
+    **What this does:**
+    - Recalculates confidence_score based on:
+      * Additional reports beyond initial cluster
+      * Unique reporters (IP diversity)
+      * Time persistence
+      * Media evidence
+    - Updates confidence label (LOW/MEDIUM/HIGH)
+    - Adds entry to confidence_timeline
+    
+    **When to use:**
+    - After new reports link to an issue
+    - Manual refresh of confidence scores
+    - Scheduled maintenance
+    
+    Args:
+        issue_id: The issue document ID
+    
+    Returns:
+        Updated issue data with new confidence
+    """
+    try:
+        result = recalculate_issue_confidence(issue_id)
+        
+        if result is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Issue {issue_id} not found"
+            )
+        
+        return {
+            "success": True,
+            "issue_id": issue_id,
+            "confidence": result.get("confidence"),
+            "confidence_score": result.get("confidence_score"),
+            "confidence_reason": result.get("confidence_reason"),
+            "updated_at": result.get("updated_at")
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to recalculate confidence: {str(e)}"
+        )
+
+
+@router.post("/issues/recalculate-all-confidence")
+async def recalculate_all_issues_confidence_endpoint():
+    """
+    Recalculate confidence for all issues in the system.
+    
+    Phase 5B: Batch operation to refresh all issue confidence scores.
+    
+    **Use cases:**
+    - Scheduled maintenance
+    - After bulk report imports
+    - System recovery after data issues
+    
+    **Performance:**
+    - Processes all issues sequentially
+    - May take time for large datasets
+    - Safe to run multiple times (idempotent)
+    
+    Returns:
+        Summary of recalculation results
+    """
+    try:
+        result = recalculate_all_issues_confidence()
+        
+        if not result.get("success"):
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=result.get("error", "Unknown error")
+            )
+        
+        return result
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to recalculate all confidence: {str(e)}"
         )

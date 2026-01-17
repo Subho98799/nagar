@@ -7,7 +7,7 @@ CRITICAL GUARANTEE:
 - No async / enrichment during creation
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
 
 from firebase_admin import firestore
@@ -39,7 +39,7 @@ def create_report_sync(report_data: ReportCreate) -> dict:
 
     workflow = StatusWorkflowEngine()
     initial_status = ReportStatus.UNDER_REVIEW.value
-    created_at = datetime.utcnow()
+    created_at = datetime.now(timezone.utc)
 
     # Create status_history entry with datetime (not SERVER_TIMESTAMP) for JSON serialization
     # Since we're creating synchronously, we can use the exact creation time
@@ -87,6 +87,21 @@ def create_report_sync(report_data: ReportCreate) -> dict:
 
 async def create_report(report_data: ReportCreate) -> ReportResponse:
     data = create_report_sync(report_data)
+
+    # Phase 5B: Attempt issue aggregation (non-blocking, fails gracefully)
+    # This will:
+    # 1. Query recent reports (last 24h)
+    # 2. Find clusters matching criteria
+    # 3. Create new issues or update existing ones
+    # 4. Automatically recalculate confidence (handled in aggregation service)
+    try:
+        from app.services.issue_aggregation_service import attempt_issue_aggregation
+        # Trigger aggregation (fire-and-forget)
+        # Confidence recalculation is handled inside create_or_update_issue_from_cluster
+        attempt_issue_aggregation(report_id=data["id"])
+    except Exception:
+        # Fail gracefully - report creation should never fail due to aggregation
+        pass
 
     return ReportResponse(
         id=data["id"],

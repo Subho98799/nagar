@@ -31,7 +31,9 @@ class Settings(BaseSettings):
     
     # AI Configuration (Phase-3 Part 2)
     AI_ENABLED: bool = True  # Enable/disable AI (if False, uses mock provider only)
+    AI_PROVIDER: str = "openai"  # AI provider: "openai" or "gemini"
     GEMINI_API_KEY: Optional[str] = None  # Google Gemini API key (optional)
+    OPENAI_API_KEY: Optional[str] = None  # OpenAI API key (optional, for issue enrichment)
     AI_TIMEOUT_SECONDS: float = 10.0  # AI inference timeout
 
     # Geocoding (Phase-4 address resolution)

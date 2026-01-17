@@ -14,7 +14,7 @@ from firebase_admin import firestore
 
 from app.config.firebase import get_db
 from app.models.report import ReportCreate, ReportResponse
-from app.utils.geocoding import ensure_city_not_null
+from app.utils.geocoding import ensure_city_not_null, normalize_city_name
 from app.services.status_workflow import ReportStatus, StatusWorkflowEngine
 
 
@@ -30,11 +30,14 @@ def create_report_sync(report_data: ReportCreate) -> dict:
     doc_ref = db.collection("reports").document()
     report_id = doc_ref.id
 
+    # CRITICAL: Use canonical city normalization to ensure consistent city values
+    # This ensures aggregation can match reports by city using exact comparison
     city = ensure_city_not_null(
         city=report_data.city,
         locality=report_data.locality,
         latitude=report_data.latitude,
         longitude=report_data.longitude,
+        resolved_city=getattr(report_data, 'resolved_city', None),
     )
 
     workflow = StatusWorkflowEngine()
@@ -94,14 +97,26 @@ async def create_report(report_data: ReportCreate) -> ReportResponse:
     # 2. Find clusters matching criteria
     # 3. Create new issues or update existing ones
     # 4. Automatically recalculate confidence (handled in aggregation service)
+    # 
+    # CRITICAL: Aggregation MUST run after report creation to ensure reports
+    # are grouped into issues. Logging proves execution.
+    import logging
+    logger = logging.getLogger(__name__)
+    
     try:
         from app.services.issue_aggregation_service import attempt_issue_aggregation
-        # Trigger aggregation (fire-and-forget)
+        logger.info(f"[AGGREGATION] Triggering aggregation for report {data['id']} (city: {data.get('city', 'N/A')})")
+        # Trigger aggregation (fire-and-forget, non-blocking)
         # Confidence recalculation is handled inside create_or_update_issue_from_cluster
-        attempt_issue_aggregation(report_id=data["id"])
-    except Exception:
+        issue_ids = attempt_issue_aggregation(report_id=data["id"])
+        if issue_ids:
+            logger.info(f"[AGGREGATION] Successfully created/updated {len(issue_ids)} issue(s): {issue_ids}")
+        else:
+            logger.info(f"[AGGREGATION] No issues created/updated for report {data['id']} (cluster criteria not met)")
+    except Exception as e:
         # Fail gracefully - report creation should never fail due to aggregation
-        pass
+        # But log the error so we know aggregation was attempted
+        logger.error(f"[AGGREGATION] Failed to run aggregation for report {data['id']}: {e}", exc_info=True)
 
     return ReportResponse(
         id=data["id"],

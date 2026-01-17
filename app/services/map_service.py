@@ -12,6 +12,7 @@ Returns a flat list of issue objects matching the exact schema required by front
 from typing import List, Dict, Any, Optional
 from app.config.firebase import get_db
 from datetime import datetime, timedelta
+from app.utils.geocoding import normalize_city_name
 import math
 
 
@@ -70,19 +71,71 @@ def _choose_cluster_confidence(confidences: List[str]) -> str:
 
 
 def get_city_issues(city: str) -> List[Dict[str, Any]]:
+    """
+    Get all issues for a given city.
+    
+    PRODUCTION-GRADE: Handles city name variations and special cases.
+    
+    Phase 5B: Dashboard reads ONLY from issues collection (not reports).
+    
+    Query Logic:
+    - If city == "Demo City": Return ALL ACTIVE issues (demo mode)
+    - If city is missing/empty: Return ALL ACTIVE issues
+    - Otherwise: Query by city OR city_variants array contains city
+    
+    Args:
+        city: City name to filter by (may be "Demo City" for demo mode)
+    
+    Returns:
+        List of issue dictionaries matching the city filter
+    """
     db = get_db()
-
-    # Fetch pre-aggregated issues from the issues collection (Firestore already has clustering done)
     issues_ref = db.collection("issues")
-    try:
-        docs = list(issues_ref.where("city", "==", city).stream())
-    except Exception:
-        # Fallback: iterate all and filter
-        docs = list(issues_ref.stream())
+    
+    # SPECIAL CASE: Demo City returns ALL active issues (intentional demo mode behavior)
+    if not city or city.strip() == "" or city.strip().lower() == "demo city":
+        # Return all active issues for demo mode
+        try:
+            docs = list(issues_ref.where("status", "==", "ACTIVE").stream())
+        except Exception:
+            # Fallback: iterate all and filter by status
+            docs = list(issues_ref.stream())
+    else:
+        # Normalize city name for querying
+        normalized_city = normalize_city_name(city.strip())
+        
+        # Query by city OR city_variants array contains city
+        # Firestore doesn't support OR queries directly, so we need to:
+        # 1. Try query by city field
+        # 2. Fallback to iterate all and filter by city or city_variants
+        try:
+            # Try query by exact city match first
+            docs = list(issues_ref.where("city", "==", normalized_city).stream())
+        except Exception:
+            # Fallback: iterate all and filter
+            docs = list(issues_ref.stream())
 
     issues: List[Dict[str, Any]] = []
     for doc in docs:
         data = doc.to_dict()
+        
+        # Skip non-active issues (unless demo mode)
+        status = data.get("status", "")
+        if status != "ACTIVE":
+            continue
+        
+        # Filter by city if not demo mode
+        if city and city.strip() and city.strip().lower() != "demo city":
+            normalized_city = normalize_city_name(city.strip())
+            issue_city = normalize_city_name(data.get("city", ""))
+            city_variants = data.get("city_variants", [])
+            
+            # Match if: city matches OR city is in variants array
+            city_matches = (issue_city == normalized_city)
+            variant_matches = (normalized_city in [normalize_city_name(v) for v in city_variants])
+            
+            if not (city_matches or variant_matches):
+                continue
         
         # Ensure required fields exist
         created_at = _parse_timestamp(data.get("created_at"))

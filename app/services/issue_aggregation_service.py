@@ -24,6 +24,8 @@ from typing import List, Dict, Any, Optional, Set
 from firebase_admin import firestore
 
 from app.config.firebase import get_db
+from app.utils.geocoding import normalize_city_name
+from app.utils.city_normalizer import normalize_city
 
 
 # Constants
@@ -138,6 +140,13 @@ def _cluster_reports(
             continue
         
         # Check time window
+        # BUG FIX: Ensure both datetimes are timezone-aware (UTC) before comparison
+        # _parse_timestamp already returns UTC-aware datetime, but ensure reference_time is also UTC-aware
+        if reference_time.tzinfo is None:
+            reference_time = reference_time.replace(tzinfo=timezone.utc)
+        if created_at.tzinfo is None:
+            created_at = created_at.replace(tzinfo=timezone.utc)
+        
         time_diff = abs((created_at - reference_time).total_seconds())
         if time_diff > time_window.total_seconds():
             continue
@@ -184,13 +193,15 @@ def _find_eligible_clusters(reports: List[Dict[str, Any]]) -> List[List[Dict[str
         cluster = _cluster_reports(sorted_reports, lat, lon, created_at)
         
         # Filter cluster to same issue_type and city
+        # CRITICAL: Use normalized city for comparison to handle inconsistent city values
+        # (e.g., "India", "Ranchi", "Demo City" should all be normalized consistently)
         issue_type = report.get("issue_type")
-        city = report.get("city")
+        city = normalize_city_name(report.get("city"))
         
         cluster = [
             r for r in cluster
             if r.get("issue_type") == issue_type
-            and r.get("city") == city
+            and normalize_city_name(r.get("city")) == city  # Use normalized city for exact match
             and r.get("status", "") in VALID_STATUSES
             and not r.get("issue_id")  # Not already linked
         ]
@@ -218,14 +229,19 @@ def _find_existing_issue(
     """
     Find existing issue that matches the cluster criteria.
     
+    CRITICAL: city parameter should already be normalized via normalize_city_name()
+    to ensure exact matching with stored issue city values.
+    
     Returns:
         issue_id if found, None otherwise
     """
     try:
         issues_ref = db.collection("issues")
         
-        # Query issues by city and issue_type
-        query = issues_ref.where("city", "==", city).where("issue_type", "==", issue_type)
+        # CRITICAL: Query issues by normalized city and issue_type
+        # Both reports and issues must use the same normalized city value
+        normalized_city = normalize_city_name(city)
+        query = issues_ref.where("city", "==", normalized_city).where("issue_type", "==", issue_type)
         docs = query.stream()
         
         for doc in docs:
@@ -268,10 +284,17 @@ def create_or_update_issue_from_cluster(cluster: List[Dict[str, Any]]) -> Option
         return None
     
     # Extract common fields
+    # CRITICAL: Use robust city normalization to ensure dashboard queries work reliably
+    # This handles all city name variations (resolved_city, city, resolved_address, etc.)
     issue_type = cluster[0].get("issue_type", "")
-    city = cluster[0].get("city", "")
     
-    if not issue_type or not city:
+    # Use the first report as base for city normalization
+    base_report = cluster[0]
+    city_info = normalize_city(base_report)
+    canonical_city = city_info["canonical_city"]
+    city_variants = city_info["variants"]
+    
+    if not issue_type or not canonical_city or canonical_city == "UNKNOWN":
         return None
     
     # Calculate centroid
@@ -291,8 +314,8 @@ def create_or_update_issue_from_cluster(cluster: List[Dict[str, Any]]) -> Option
     ]
     earliest_time = min(created_times) if created_times else datetime.now(timezone.utc)
     
-    # Check if issue already exists
-    existing_issue_id = _find_existing_issue(db, issue_type, city, centroid_lat, centroid_lon)
+    # Check if issue already exists (use canonical_city for matching)
+    existing_issue_id = _find_existing_issue(db, issue_type, canonical_city, centroid_lat, centroid_lon)
     
     if existing_issue_id:
         # Update existing issue
@@ -370,8 +393,9 @@ def create_or_update_issue_from_cluster(cluster: List[Dict[str, Any]]) -> Option
                                 except Exception:
                                     pass
                             
-                            # Enrich issue with AI (fail-safe)
-                            from app.services.ai_issue_enrichment import enrich_issue
+                            # Enrich issue with AI (fail-safe, non-blocking)
+                            # CRITICAL: AI enrichment NEVER affects control flow, confidence, status, or escalation
+                            from app.services.ai_enrichment.registry import enrich_issue
                             ai_metadata = enrich_issue(updated_issue_data, linked_reports)
                             if ai_metadata:
                                 # Store in ai_metadata, don't overwrite if already present
@@ -395,10 +419,11 @@ def create_or_update_issue_from_cluster(cluster: List[Dict[str, Any]]) -> Option
         
         issue_data = {
             "id": issue_id,
-            "title": f"{issue_type} issue in {locality or city}",
-            "description": f"Multiple reports of {issue_type.lower()} issues in {locality or city}. {len(cluster)} reports received.",
+            "title": f"{issue_type} issue in {locality or canonical_city}",
+            "description": f"Multiple reports of {issue_type.lower()} issues in {locality or canonical_city}. {len(cluster)} reports received.",
             "issue_type": issue_type,
-            "city": city,
+            "city": canonical_city,  # Canonical city name (normalized)
+            "city_variants": city_variants,  # Array of city name variants for flexible querying
             "locality": locality,
             "latitude": centroid_lat,
             "longitude": centroid_lon,
@@ -410,7 +435,7 @@ def create_or_update_issue_from_cluster(cluster: List[Dict[str, Any]]) -> Option
             "status": "ACTIVE",
             "severity": "Low",
             "created_at": earliest_time,
-            "updated_at": datetime.utcnow(),
+            "updated_at": datetime.now(timezone.utc),  # BUG FIX: Use timezone-aware datetime for consistent comparison
             "confidence_timeline": [
                 {
                     "timestamp": datetime.now(timezone.utc),
@@ -459,8 +484,9 @@ def create_or_update_issue_from_cluster(cluster: List[Dict[str, Any]]) -> Option
                             except Exception:
                                 pass
                         
-                        # Enrich issue with AI (fail-safe)
-                        from app.services.ai_issue_enrichment import enrich_issue
+                        # Enrich issue with AI (fail-safe, non-blocking)
+                        # CRITICAL: AI enrichment NEVER affects control flow, confidence, status, or escalation
+                        from app.services.ai_enrichment.registry import enrich_issue
                         ai_metadata = enrich_issue(updated_issue_data, linked_reports)
                         if ai_metadata:
                             # Store in ai_metadata, don't overwrite if already present
@@ -488,19 +514,27 @@ def attempt_issue_aggregation(report_id: Optional[str] = None) -> List[str]:
     
     This function is idempotent - it will not create duplicate issues.
     
+    CRITICAL: This function MUST be called after report creation to ensure
+    reports are aggregated into issues. Logging proves execution.
+    
     Args:
         report_id: Optional report ID to focus aggregation around (for efficiency)
     
     Returns:
         List of created/updated issue IDs
     """
+    import logging
+    logger = logging.getLogger(__name__)
+    
     db = get_db()
     if db is None:
+        logger.warning("[AGGREGATION] Database not initialized, skipping aggregation")
         return []
     
     updated_issue_ids = []
     
     try:
+        logger.info(f"[AGGREGATION] Starting aggregation (report_id: {report_id})")
         reports_ref = db.collection("reports")
         
         # Query recent reports (last 24 hours) for efficiency
@@ -536,9 +570,16 @@ def attempt_issue_aggregation(report_id: Optional[str] = None) -> List[str]:
             if data.get("latitude") is None or data.get("longitude") is None:
                 continue
             
-            # Must have issue_type and city
-            if not data.get("issue_type") or not data.get("city"):
+            # Must have issue_type and city (normalized)
+            # CRITICAL: Use robust city normalization to handle all city name variations
+            city_info = normalize_city(data)
+            canonical_city = city_info["canonical_city"]
+            if not data.get("issue_type") or not canonical_city or canonical_city == "UNKNOWN":
                 continue
+            
+            # Update data with normalized city for consistent comparison
+            data["city"] = canonical_city
+            data["city_variants"] = city_info["variants"]
             
             # Check if within time window (last 24h)
             created_at = _parse_timestamp(data.get("created_at"))
@@ -552,10 +593,12 @@ def attempt_issue_aggregation(report_id: Optional[str] = None) -> List[str]:
         clusters = _find_eligible_clusters(all_reports)
         
         # Create or update issues from clusters
+        logger.info(f"[AGGREGATION] Found {len(clusters)} eligible cluster(s)")
         for cluster in clusters:
             issue_id = create_or_update_issue_from_cluster(cluster)
             if issue_id:
                 updated_issue_ids.append(issue_id)
+                logger.info(f"[AGGREGATION] Created/updated issue {issue_id} from {len(cluster)} reports")
         
         # Phase 5B.1: Also check individual unlinked reports against existing issues
         # Link reports that match existing issues (even if cluster < 5)
@@ -566,13 +609,14 @@ def attempt_issue_aggregation(report_id: Optional[str] = None) -> List[str]:
                 lat = report.get("latitude")
                 lon = report.get("longitude")
                 issue_type = report.get("issue_type")
-                city = report.get("city")
+                city_info = normalize_city(report)  # CRITICAL: Use robust normalization
+                canonical_city = city_info["canonical_city"]
                 
-                if not all([lat, lon, issue_type, city]):
+                if not all([lat, lon, issue_type, canonical_city]) or canonical_city == "UNKNOWN":
                     continue
                 
-                # Find existing issue that matches
-                existing_issue_id = _find_existing_issue(db, issue_type, city, lat, lon)
+                # Find existing issue that matches (using canonical city)
+                existing_issue_id = _find_existing_issue(db, issue_type, canonical_city, lat, lon)
                 
                 if existing_issue_id:
                     # Link report to existing issue
@@ -639,8 +683,9 @@ def attempt_issue_aggregation(report_id: Optional[str] = None) -> List[str]:
                                         except Exception:
                                             pass
                                     
-                                    # Enrich issue with AI (fail-safe)
-                                    from app.services.ai_issue_enrichment import enrich_issue
+                                    # Enrich issue with AI (fail-safe, non-blocking)
+                                    # CRITICAL: AI enrichment NEVER affects control flow, confidence, status, or escalation
+                                    from app.services.ai_enrichment.registry import enrich_issue
                                     ai_metadata = enrich_issue(updated_issue_data, linked_reports)
                                     if ai_metadata:
                                         # Store in ai_metadata, don't overwrite if already present
@@ -657,8 +702,9 @@ def attempt_issue_aggregation(report_id: Optional[str] = None) -> List[str]:
                 # Continue processing other reports
                 pass
         
+        logger.info(f"[AGGREGATION] Aggregation completed: {len(updated_issue_ids)} issue(s) created/updated")
         return updated_issue_ids
     
     except Exception as e:
-        print(f"Error in issue aggregation: {e}")
+        logger.error(f"[AGGREGATION] Error in issue aggregation: {e}", exc_info=True)
         return []

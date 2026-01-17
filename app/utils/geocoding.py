@@ -76,45 +76,93 @@ def derive_city_from_coordinates(latitude: Optional[float], longitude: Optional[
     return "UNKNOWN"
 
 
+def normalize_city_name(city: Optional[str]) -> str:
+    """
+    Canonical city normalization function.
+    
+    Normalizes city names to a consistent format:
+    - Trims whitespace
+    - Handles case variations
+    - Returns "UNKNOWN" for invalid values
+    
+    This function ensures BOTH reports and issues use the SAME normalized city value
+    for aggregation matching.
+    
+    Args:
+        city: City name (may be None, empty, or invalid)
+    
+    Returns:
+        Normalized city name or "UNKNOWN"
+    """
+    if not city or not isinstance(city, str):
+        return "UNKNOWN"
+    
+    normalized = city.strip()
+    if not normalized or normalized.upper() == "UNKNOWN":
+        return "UNKNOWN"
+    
+    # Normalize common variations (e.g., "India" should not be a city)
+    # Filter out country names and invalid values
+    invalid_cities = {"india", "demo city", "test city", ""}
+    if normalized.lower() in invalid_cities:
+        return "UNKNOWN"
+    
+    return normalized
+
+
 def ensure_city_not_null(
     city: Optional[str],
     locality: Optional[str],
     latitude: Optional[float] = None,
-    longitude: Optional[float] = None
+    longitude: Optional[float] = None,
+    resolved_city: Optional[str] = None
 ) -> str:
     """
-    Ensure city field is never null.
+    Ensure city field is never null using canonical normalization.
     
-    Tries multiple strategies:
-    1. Use provided city if valid
-    2. Derive from locality
-    3. Derive from coordinates
-    4. Fallback to "UNKNOWN"
+    Tries multiple strategies in order:
+    1. Use resolved_city (from geocoding) if valid
+    2. Use provided city if valid
+    3. Derive from locality
+    4. Derive from coordinates
+    5. Fallback to "UNKNOWN"
+    
+    CRITICAL: This function uses normalize_city_name() to ensure consistent
+    city values for aggregation matching.
     
     Args:
         city: Provided city name (may be None)
         locality: Locality string
         latitude: Optional latitude
         longitude: Optional longitude
+        resolved_city: Optional resolved city from geocoding (highest priority)
     
     Returns:
-        Non-null city name
+        Non-null normalized city name
     """
-    # Strategy 1: Use provided city if valid
-    if city and city.strip() and city.strip().upper() != "UNKNOWN":
-        return city.strip()
+    # Strategy 1: Use resolved_city (from geocoding) - highest priority
+    if resolved_city:
+        normalized = normalize_city_name(resolved_city)
+        if normalized != "UNKNOWN":
+            return normalized
     
-    # Strategy 2: Derive from locality
+    # Strategy 2: Use provided city if valid
+    if city:
+        normalized = normalize_city_name(city)
+        if normalized != "UNKNOWN":
+            return normalized
+    
+    # Strategy 3: Derive from locality
     if locality:
         derived = derive_city_from_locality(locality)
         if derived != "UNKNOWN":
-            return derived
+            return normalize_city_name(derived)
     
-    # Strategy 3: Derive from coordinates
+    # Strategy 4: Derive from coordinates
     if latitude is not None and longitude is not None:
         derived = derive_city_from_coordinates(latitude, longitude)
         if derived != "UNKNOWN":
-            return derived
+            return normalize_city_name(derived)
     
-    # Strategy 4: Fallback
+    # Strategy 5: Fallback
     return "UNKNOWN"

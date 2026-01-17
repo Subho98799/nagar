@@ -26,6 +26,8 @@ class IssueEnrichmentResponse:
         keywords: List[str] = None,
         severity_hint: str = "",
         title_suggestion: str = "",
+        summary_hinglish: str = "",
+        language_detected: str = "English",
         model_name: str = "",
         model_version: str = "",
         inference_timestamp: Optional[datetime] = None,
@@ -35,6 +37,8 @@ class IssueEnrichmentResponse:
         self.keywords = keywords or []
         self.severity_hint = severity_hint
         self.title_suggestion = title_suggestion
+        self.summary_hinglish = summary_hinglish  # Hinglish summary if available
+        self.language_detected = language_detected  # Detected language from reports
         self.model_name = model_name
         self.model_version = model_version
         self.inference_timestamp = inference_timestamp or datetime.utcnow()
@@ -59,13 +63,24 @@ class IssueEnrichmentResponse:
             "keywords": self.keywords,
             "severity_hint": self.severity_hint,
             "title_suggestion": self.title_suggestion,
+            "summary_hinglish": self.summary_hinglish,
+            "language_detected": self.language_detected,
             "model_name": self.model_name,
             "model_version": self.model_version,
             "inference_timestamp": self.inference_timestamp.isoformat() if isinstance(self.inference_timestamp, datetime) else str(self.inference_timestamp)
         }
         
-        # Remove empty fields
-        return {k: v for k, v in result.items() if v}
+        # Remove empty fields (but keep required fields even if empty)
+        # Required fields: summary, keywords, severity_hint, language_detected
+        filtered = {}
+        for k, v in result.items():
+            if k in ["summary", "keywords", "severity_hint", "language_detected"]:
+                # Always include required fields
+                filtered[k] = v
+            elif v:  # Only include non-empty optional fields
+                filtered[k] = v
+        
+        return filtered
 
 
 class IssueEnrichmentProvider(ABC):

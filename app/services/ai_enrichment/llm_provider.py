@@ -30,7 +30,7 @@ class LLMEnrichmentProvider(IssueEnrichmentProvider):
     
     MODEL_NAME = "llm-enrichment"
     MODEL_VERSION = "1.0"
-    TIMEOUT_SECONDS = 8.0  # 8 second timeout as per requirements
+    TIMEOUT_SECONDS = 5.0  # 5 second timeout as per requirements (≤5 seconds)
     
     def __init__(self):
         self.gemini_api_key = settings.GEMINI_API_KEY
@@ -77,8 +77,10 @@ class LLMEnrichmentProvider(IssueEnrichmentProvider):
             return IssueEnrichmentResponse(
                 summary="",
                 keywords=[],
-                severity_hint="",
+                severity_hint="Low",
                 title_suggestion="",
+                summary_hinglish="",
+                language_detected="English",
                 model_name=self.MODEL_NAME,
                 model_version=self.MODEL_VERSION,
                 inference_timestamp=datetime.utcnow(),
@@ -103,8 +105,10 @@ class LLMEnrichmentProvider(IssueEnrichmentProvider):
             return IssueEnrichmentResponse(
                 summary=enrichment_result.get("summary", ""),
                 keywords=enrichment_result.get("keywords", []),
-                severity_hint=enrichment_result.get("severity_hint", ""),
+                severity_hint=enrichment_result.get("severity_hint", "Low"),
                 title_suggestion=enrichment_result.get("title_suggestion", ""),
+                summary_hinglish=enrichment_result.get("summary_hinglish", ""),
+                language_detected=enrichment_result.get("language_detected", "English"),
                 model_name=self.get_model_info()["name"],
                 model_version=self.MODEL_VERSION,
                 inference_timestamp=datetime.utcnow()
@@ -116,8 +120,10 @@ class LLMEnrichmentProvider(IssueEnrichmentProvider):
             return IssueEnrichmentResponse(
                 summary="",
                 keywords=[],
-                severity_hint="",
+                severity_hint="Low",
                 title_suggestion="",
+                summary_hinglish="",
+                language_detected="English",
                 model_name=self.MODEL_NAME,
                 model_version=self.MODEL_VERSION,
                 inference_timestamp=datetime.utcnow(),
@@ -125,10 +131,15 @@ class LLMEnrichmentProvider(IssueEnrichmentProvider):
             )
     
     def _build_prompt(self, issue: Dict, reports: List[Dict]) -> str:
-        """Build prompt for LLM API."""
+        """
+        Build prompt for LLM API with Hinglish support.
+        
+        CRITICAL: AI must NEVER affect control flow, confidence, status, or escalation.
+        This prompt is designed to only generate summaries and hints.
+        """
         # Collect report descriptions (may be in Hinglish)
         report_descriptions = []
-        for report in reports[:10]:  # Limit to first 10 reports
+        for report in reports[:15]:  # Limit to first 15 reports for context
             desc = report.get("description", "").strip()
             if desc:
                 report_descriptions.append(desc)
@@ -141,13 +152,13 @@ class LLMEnrichmentProvider(IssueEnrichmentProvider):
         locality = issue.get("locality", "")
         report_count = len(reports)
         
-        return f"""You are assisting a civic intelligence system.
-Input may be English, Hindi, or Hinglish (Hindi + English mix).
-Preserve meaning.
-Output calm, neutral English.
-Do NOT exaggerate.
-Do NOT infer urgency.
-Do NOT make decisions.
+        return f"""You are assisting a civic intelligence system for citizen-reported issues.
+
+CRITICAL CONSTRAINTS:
+- You ONLY summarize and extract information
+- You NEVER make decisions about confidence, status, or escalation
+- You NEVER affect control flow
+- Output calm, neutral, citizen-readable English
 
 ---
 ISSUE CONTEXT:
@@ -156,26 +167,34 @@ City: {city}
 Locality: {locality}
 Number of reports: {report_count}
 
-REPORT DESCRIPTIONS (may be in Hinglish):
+REPORT DESCRIPTIONS (may be in English, Hindi, or Hinglish):
 {combined_descriptions}
 
 ---
 TASK:
-Provide a JSON response with the following structure:
+Analyze the reports and provide a JSON response with:
 
 {{
-  "summary": "<1-2 sentence neutral summary in calm English. Preserve the meaning from Hinglish if present.>",
-  "keywords": ["<keyword1>", "<keyword2>", "<keyword3>"],
-  "severity_hint": "<one of: Low, Medium, High>",
-  "title_suggestion": "<suggested clearer title in English>"
+  "summary": "<1-2 sentence citizen-readable summary in calm English. If input is Hinglish, understand it and output in neutral English. Focus on WHAT was reported, not urgency.>",
+  "summary_hinglish": "<Optional: Same summary in Hinglish if reports contain Hinglish, otherwise empty string>",
+  "keywords": ["<keyword1>", "<keyword2>", "<keyword3>", "<keyword4>", "<keyword5>"],
+  "severity_hint": "<one of: Low, Medium, High - based on issue type and description patterns only, NOT urgency>",
+  "language_detected": "<one of: English, Hinglish, Hindi - detected from report descriptions>"
 }}
 
+REQUIREMENTS:
+1. SUMMARY: Citizen-readable, calm, factual. Preserve meaning from Hinglish if present.
+2. SUMMARY_HINGLISH: Provide Hinglish version if reports contain Hinglish, otherwise empty string.
+3. KEYWORDS: Extract 3-5 relevant keywords from the reports (e.g., "pothole", "water leakage", "street light").
+4. SEVERITY_HINT: Based on issue type and description patterns (Low/Medium/High). Do NOT infer urgency.
+5. LANGUAGE_DETECTED: Detect primary language in reports (English/Hinglish/Hindi).
+
 IMPORTANT:
-- If input is Hinglish, understand it and output in neutral English
-- Do NOT use words like "urgent", "critical", "emergency" unless explicitly stated
+- Do NOT use words like "urgent", "critical", "emergency" unless explicitly stated in reports
+- Do NOT claim verification or confirmation
 - Keep language calm and factual
-- Focus on WHAT was reported, not urgency
-- Keywords should be relevant and specific"""
+- If input is Hinglish, understand it and output in neutral English
+- Severity hint is advisory only, not a decision"""
     
     def _call_gemini_api(self, prompt: str) -> Dict:
         """Call Gemini API with timeout handling."""
@@ -259,7 +278,16 @@ IMPORTANT:
         return {"text": text}
     
     def _parse_llm_response(self, response_data: Dict) -> Dict:
-        """Parse LLM API response into structured format."""
+        """
+        Parse LLM API response into structured format.
+        
+        Required fields:
+        - summary: Citizen-readable summary (English)
+        - summary_hinglish: Optional Hinglish summary
+        - keywords: List of extracted keywords
+        - severity_hint: Low/Medium/High (advisory only)
+        - language_detected: English/Hinglish/Hindi
+        """
         try:
             text = response_data.get("text", "")
             
@@ -273,17 +301,37 @@ IMPORTANT:
             # Parse JSON
             parsed = json.loads(text)
             
-            # Validate and extract fields
+            # Validate and extract required fields
             result = {
-                "summary": parsed.get("summary", ""),
+                "summary": parsed.get("summary", "").strip(),
+                "summary_hinglish": parsed.get("summary_hinglish", "").strip(),
                 "keywords": parsed.get("keywords", []),
                 "severity_hint": parsed.get("severity_hint", "Low"),
-                "title_suggestion": parsed.get("title_suggestion", "")
+                "language_detected": parsed.get("language_detected", "English")
             }
+            
+            # Validate summary is present (required field)
+            if not result["summary"]:
+                logger.warning("LLM response missing required 'summary' field")
+                raise ValueError("Missing required 'summary' field")
             
             # Ensure keywords is a list
             if not isinstance(result["keywords"], list):
                 result["keywords"] = []
+            # Limit keywords to 5
+            result["keywords"] = result["keywords"][:5]
+            
+            # Validate severity_hint
+            severity = result["severity_hint"].capitalize()
+            if severity not in ["Low", "Medium", "High"]:
+                result["severity_hint"] = "Low"
+            else:
+                result["severity_hint"] = severity
+            
+            # Validate language_detected
+            language = result["language_detected"]
+            if language not in ["English", "Hinglish", "Hindi"]:
+                result["language_detected"] = "English"
             
             return result
         

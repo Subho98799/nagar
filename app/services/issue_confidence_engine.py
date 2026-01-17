@@ -253,8 +253,9 @@ def recalculate_issue_confidence(issue_id: str) -> Optional[Dict[str, Any]]:
                             except Exception:
                                 continue
                         
-                        # Enrich issue with AI (fail-safe)
-                        from app.services.ai_issue_enrichment import enrich_issue
+                        # Enrich issue with AI (fail-safe, non-blocking)
+                        # CRITICAL: AI enrichment NEVER affects control flow, confidence, status, or escalation
+                        from app.services.ai_enrichment.registry import enrich_issue
                         ai_metadata = enrich_issue(updated_issue_data, linked_reports)
                         if ai_metadata:
                             # Store in ai_metadata, don't overwrite if already present

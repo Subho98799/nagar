@@ -1,12 +1,12 @@
 {
-  "reports": {
+  "reports": { 
     "1": {
       "description": "Multiple citizens reporting slow-moving traffic. Possible accident or roadwork.",
       "issue_type": "Traffic & Roads",
       "city": "Demo City",
       "locality": "Main Chowk, Station Road",
       "latitude": 12.9718,
-      "longitude": 77.5940,
+      "longitude": 77.594,
       "confidence": "HIGH",
       "confidence_reason": "Seeded mock data",
       "status": "CONFIRMED",
@@ -43,7 +43,7 @@
       "city": "Demo City",
       "locality": "Sector 7, Residential Area",
       "latitude": 12.9725,
-      "longitude": 77.5950,
+      "longitude": 77.595,
       "confidence": "MEDIUM",
       "confidence_reason": "Seeded mock data",
       "status": "CONFIRMED",
@@ -51,9 +51,27 @@
       "created_at": "2024-01-15T09:30:00",
       "reportCount": 18,
       "timeline": [
-        { "id": "t4", "timestamp": "2024-01-15T09:30:00", "time": "09:30 AM", "confidence": "Low", "description": "Initial reports from 3 households" },
-        { "id": "t5", "timestamp": "2024-01-15T10:00:00", "time": "10:00 AM", "confidence": "Medium", "description": "Reports increasing (18 total). Area-wide pattern emerging" },
-        { "id": "t6", "timestamp": "2024-01-15T12:00:00", "time": "12:00 PM", "confidence": "Medium", "description": "No new signals. Situation ongoing" }
+        {
+          "id": "t4",
+          "timestamp": "2024-01-15T09:30:00",
+          "time": "09:30 AM",
+          "confidence": "Low",
+          "description": "Initial reports from 3 households"
+        },
+        {
+          "id": "t5",
+          "timestamp": "2024-01-15T10:00:00",
+          "time": "10:00 AM",
+          "confidence": "Medium",
+          "description": "Reports increasing (18 total). Area-wide pattern emerging"
+        },
+        {
+          "id": "t6",
+          "timestamp": "2024-01-15T12:00:00",
+          "time": "12:00 PM",
+          "confidence": "Medium",
+          "description": "No new signals. Situation ongoing"
+        }
       ]
     },
     "3": {
@@ -61,8 +79,8 @@
       "issue_type": "Water & Sanitation",
       "city": "Demo City",
       "locality": "Gandhi Nagar, Zone B",
-      "latitude": 12.9700,
-      "longitude": 77.5930,
+      "latitude": 12.97,
+      "longitude": 77.593,
       "confidence": "MEDIUM",
       "confidence_reason": "Seeded mock data",
       "status": "UNDER_OBSERVATION",
@@ -70,8 +88,20 @@
       "created_at": "2024-01-15T08:00:00",
       "reportCount": 6,
       "timeline": [
-        { "id": "t7", "timestamp": "2024-01-15T08:00:00", "time": "08:00 AM", "confidence": "Low", "description": "First reports (4 citizens) about low pressure" },
-        { "id": "t8", "timestamp": "2024-01-15T09:15:00", "time": "09:15 AM", "confidence": "Medium", "description": "Additional reports confirm localized issue" }
+        {
+          "id": "t7",
+          "timestamp": "2024-01-15T08:00:00",
+          "time": "08:00 AM",
+          "confidence": "Low",
+          "description": "First reports (4 citizens) about low pressure"
+        },
+        {
+          "id": "t8",
+          "timestamp": "2024-01-15T09:15:00",
+          "time": "09:15 AM",
+          "confidence": "Medium",
+          "description": "Additional reports confirm localized issue"
+        }
       ]
     },
     "4": {
@@ -80,7 +110,7 @@
       "city": "Demo City",
       "locality": "Railway Crossing, NH-44",
       "latitude": 12.9685,
-      "longitude": 77.5960,
+      "longitude": 77.596,
       "confidence": "HIGH",
       "confidence_reason": "Seeded mock data",
       "status": "RESOLVED",
@@ -88,9 +118,27 @@
       "created_at": "2024-01-14T14:00:00",
       "reportCount": 8,
       "timeline": [
-        { "id": "t9", "timestamp": "2024-01-14T14:00:00", "time": "02:00 PM", "confidence": "Medium", "description": "Reports of road closure" },
-        { "id": "t10", "timestamp": "2024-01-14T15:30:00", "time": "03:30 PM", "confidence": "High", "description": "Confirmed by multiple sources" },
-        { "id": "t11", "timestamp": "2024-01-14T18:00:00", "time": "06:00 PM", "confidence": "High", "description": "Reports indicate road reopened. Likely resolved" }
+        {
+          "id": "t9",
+          "timestamp": "2024-01-14T14:00:00",
+          "time": "02:00 PM",
+          "confidence": "Medium",
+          "description": "Reports of road closure"
+        },
+        {
+          "id": "t10",
+          "timestamp": "2024-01-14T15:30:00",
+          "time": "03:30 PM",
+          "confidence": "High",
+          "description": "Confirmed by multiple sources"
+        },
+        {
+          "id": "t11",
+          "timestamp": "2024-01-14T18:00:00",
+          "time": "06:00 PM",
+          "confidence": "High",
+          "description": "Reports indicate road reopened. Likely resolved"
+        }
       ]
     },
     "5": {
@@ -98,8 +146,8 @@
       "issue_type": "Public Safety",
       "city": "Demo City",
       "locality": "Park Street, near City Park",
-      "latitude": 12.9730,
-      "longitude": 77.5920,
+      "latitude": 12.973,
+      "longitude": 77.592,
       "confidence": "LOW",
       "confidence_reason": "Seeded mock data",
       "status": "UNDER_OBSERVATION",
@@ -107,7 +155,13 @@
       "created_at": "2024-01-15T07:45:00",
       "reportCount": 3,
       "timeline": [
-        { "id": "t12", "timestamp": "2024-01-15T07:45:00", "time": "07:45 AM", "confidence": "Low", "description": "Initial reports from 3 citizens. Awaiting verification" }
+        {
+          "id": "t12",
+          "timestamp": "2024-01-15T07:45:00",
+          "time": "07:45 AM",
+          "confidence": "Low",
+          "description": "Initial reports from 3 citizens. Awaiting verification"
+        }
       ]
     },
     "6": {
@@ -115,7 +169,7 @@
       "issue_type": "General",
       "city": "Demo City",
       "locality": "Central Market, Shopping District",
-      "latitude": 12.9710,
+      "latitude": 12.971,
       "longitude": 77.5955,
       "confidence": "MEDIUM",
       "confidence_reason": "Seeded mock data",
@@ -124,9 +178,468 @@
       "created_at": "2024-01-15T11:20:00",
       "reportCount": 5,
       "timeline": [
-        { "id": "t13", "timestamp": "2024-01-15T11:20:00", "time": "11:20 AM", "confidence": "Low", "description": "Initial reports from nearby residents" },
-        { "id": "t14", "timestamp": "2024-01-15T12:00:00", "time": "12:00 PM", "confidence": "Medium", "description": "Multiple reports (5 total) from same area confirm pattern" }
+        {
+          "id": "t13",
+          "timestamp": "2024-01-15T11:20:00",
+          "time": "11:20 AM",
+          "confidence": "Low",
+          "description": "Initial reports from nearby residents"
+        },
+        {
+          "id": "t14",
+          "timestamp": "2024-01-15T12:00:00",
+          "time": "12:00 PM",
+          "confidence": "Medium",
+          "description": "Multiple reports (5 total) from same area confirm pattern"
+        }
       ]
+    },
+    "2f5c9b4fa13548cca561a4317d9b91b9": {
+      "id": "2f5c9b4fa13548cca561a4317d9b91b9",
+      "description": "There is a road block.",
+      "issue_type": "Water",
+      "city": "UNKNOWN",
+      "locality": "Mahuatoli, Namkum, \u0930\u093e\u0901\u091a\u0940, Jharkhand, India",
+      "latitude": 23.347116,
+      "longitude": 85.41581,
+      "reporter_name": "Anushruti",
+      "media_urls": [],
+      "resolved_address": "Mahuatoli, Namkum, \u0930\u093e\u0901\u091a\u0940, Jharkhand, India",
+      "user_entered_location": "Mahuatoli, Namkum, \u0930\u093e\u0901\u091a\u0940, Jharkhand, India",
+      "location_source": "frontend-geocoded",
+      "status": "UNDER_REVIEW",
+      "status_history": [
+        {
+          "from": "",
+          "to": "UNDER_REVIEW",
+          "changed_by": "system",
+          "timestamp": "2026-01-17 10:29:26.105385+00:00",
+          "note": "Report created"
+        }
+      ],
+      "confidence": "LOW",
+      "confidence_reason": "Single report, awaiting corroboration",
+      "ai_metadata": {},
+      "priority_score": null,
+      "priority_reason": null,
+      "escalation_flag": false,
+      "escalation_reason": null,
+      "escalation_history": [],
+      "created_at": "2026-01-17T10:29:26.105385+00:00"
+    },
+    "75b6ee6fabc5421cb1afdb35350d053f": {
+      "id": "75b6ee6fabc5421cb1afdb35350d053f",
+      "description": "There is a road block.",
+      "issue_type": "Water",
+      "city": "UNKNOWN",
+      "locality": "Mahuatoli, Namkum, \u0930\u093e\u0901\u091a\u0940, Jharkhand, India",
+      "latitude": 23.347116,
+      "longitude": 85.41581,
+      "reporter_name": "Anushruti",
+      "media_urls": [],
+      "resolved_address": "Mahuatoli, Namkum, \u0930\u093e\u0901\u091a\u0940, Jharkhand, India",
+      "user_entered_location": "Mahuatoli, Namkum, \u0930\u093e\u0901\u091a\u0940, Jharkhand, India",
+      "location_source": "frontend-geocoded",
+      "status": "UNDER_REVIEW",
+      "status_history": [
+        {
+          "from": "",
+          "to": "UNDER_REVIEW",
+          "changed_by": "system",
+          "timestamp": "2026-01-17 10:30:43.183223+00:00",
+          "note": "Report created"
+        }
+      ],
+      "confidence": "LOW",
+      "confidence_reason": "Single report, awaiting corroboration",
+      "ai_metadata": {},
+      "priority_score": null,
+      "priority_reason": null,
+      "escalation_flag": false,
+      "escalation_reason": null,
+      "escalation_history": [],
+      "created_at": "2026-01-17T10:30:43.183223+00:00"
+    },
+    "e89b142493c449dcb05fa451c63b834b": {
+      "id": "e89b142493c449dcb05fa451c63b834b",
+      "description": "There is an event in Sarala Birla University.",
+      "issue_type": "Safety",
+      "city": "UNKNOWN",
+      "locality": "Mahuatoli, Namkum, \u0930\u093e\u0901\u091a\u0940, Jharkhand, India",
+      "latitude": 23.347116,
+      "longitude": 85.41581,
+      "reporter_name": "Anushruti",
+      "media_urls": [],
+      "resolved_address": "Mahuatoli, Namkum, \u0930\u093e\u0901\u091a\u0940, Jharkhand, India",
+      "user_entered_location": "Mahuatoli, Namkum, \u0930\u093e\u0901\u091a\u0940, Jharkhand, India",
+      "location_source": "frontend-geocoded",
+      "status": "UNDER_REVIEW",
+      "status_history": [
+        {
+          "from": "",
+          "to": "UNDER_REVIEW",
+          "changed_by": "system",
+          "timestamp": "2026-01-17 10:32:02.430580+00:00",
+          "note": "Report created"
+        }
+      ],
+      "confidence": "LOW",
+      "confidence_reason": "Single report, awaiting corroboration",
+      "ai_metadata": {},
+      "priority_score": null,
+      "priority_reason": null,
+      "escalation_flag": false,
+      "escalation_reason": null,
+      "escalation_history": [],
+      "created_at": "2026-01-17T10:32:02.430580+00:00"
+    },
+    "8652ff5c1eca4c569279b38bce14a312": {
+      "id": "8652ff5c1eca4c569279b38bce14a312",
+      "description": "There is an event in Sarala Birla University.",
+      "issue_type": "Roadblock",
+      "city": "UNKNOWN",
+      "locality": "Mahuatoli, Namkum, \u0930\u093e\u0901\u091a\u0940, Jharkhand, India",
+      "latitude": 23.347116,
+      "longitude": 85.41581,
+      "reporter_name": "Anushruti",
+      "media_urls": [],
+      "resolved_address": "Mahuatoli, Namkum, \u0930\u093e\u0901\u091a\u0940, Jharkhand, India",
+      "user_entered_location": "Mahuatoli, Namkum, \u0930\u093e\u0901\u091a\u0940, Jharkhand, India",
+      "location_source": "frontend-geocoded",
+      "status": "UNDER_REVIEW",
+      "status_history": [
+        {
+          "from": "",
+          "to": "UNDER_REVIEW",
+          "changed_by": "system",
+          "timestamp": "2026-01-17 10:59:45.548104+00:00",
+          "note": "Report created"
+        }
+      ],
+      "confidence": "LOW",
+      "confidence_reason": "Single report, awaiting corroboration",
+      "ai_metadata": {},
+      "priority_score": null,
+      "priority_reason": null,
+      "escalation_flag": false,
+      "escalation_reason": null,
+      "escalation_history": [],
+      "created_at": "2026-01-17T10:59:45.548104+00:00"
+    },
+    "66257ff9ec69476a83a83400b1d564d1": {
+      "id": "66257ff9ec69476a83a83400b1d564d1",
+      "description": "Subho login kr rha h.",
+      "issue_type": "Safety",
+      "city": "UNKNOWN",
+      "locality": "Mahuatoli, Namkum, \u0930\u093e\u0901\u091a\u0940, Jharkhand, India",
+      "latitude": 23.347116,
+      "longitude": 85.41581,
+      "reporter_name": "Subho",
+      "media_urls": [],
+      "resolved_address": "Mahuatoli, Namkum, \u0930\u093e\u0901\u091a\u0940, Jharkhand, India",
+      "user_entered_location": "Mahuatoli, Namkum, \u0930\u093e\u0901\u091a\u0940, Jharkhand, India",
+      "location_source": "frontend-geocoded",
+      "status": "UNDER_REVIEW",
+      "status_history": [
+        {
+          "from": "",
+          "to": "UNDER_REVIEW",
+          "changed_by": "system",
+          "timestamp": "2026-01-17 11:00:47.754221+00:00",
+          "note": "Report created"
+        }
+      ],
+      "confidence": "LOW",
+      "confidence_reason": "Single report, awaiting corroboration",
+      "ai_metadata": {},
+      "priority_score": null,
+      "priority_reason": null,
+      "escalation_flag": false,
+      "escalation_reason": null,
+      "escalation_history": [],
+      "created_at": "2026-01-17T11:00:47.754221+00:00"
+    },
+    "daee12f75546469ab8b451b25d257782": {
+      "id": "daee12f75546469ab8b451b25d257782",
+      "description": "There is a road closure issue.",
+      "issue_type": "Roadblock",
+      "city": "UNKNOWN",
+      "locality": "Mahuatoli, Namkum, \u0930\u093e\u0901\u091a\u0940, Jharkhand, India",
+      "latitude": 23.347116,
+      "longitude": 85.41581,
+      "reporter_name": "Anushruti",
+      "media_urls": [],
+      "resolved_address": "Mahuatoli, Namkum, \u0930\u093e\u0901\u091a\u0940, Jharkhand, India",
+      "user_entered_location": "Mahuatoli, Namkum, \u0930\u093e\u0901\u091a\u0940, Jharkhand, India",
+      "location_source": "frontend-geocoded",
+      "status": "UNDER_REVIEW",
+      "status_history": [
+        {
+          "from": "",
+          "to": "UNDER_REVIEW",
+          "changed_by": "system",
+          "timestamp": "2026-01-17 11:12:43.359478+00:00",
+          "note": "Report created"
+        }
+      ],
+      "confidence": "LOW",
+      "confidence_reason": "Single report, awaiting corroboration",
+      "ai_metadata": {},
+      "priority_score": null,
+      "priority_reason": null,
+      "escalation_flag": false,
+      "escalation_reason": null,
+      "escalation_history": [],
+      "created_at": "2026-01-17T11:12:43.359478+00:00"
+    },
+    "6fac2db2093d4126b2b7480cfca699d3": {
+      "id": "6fac2db2093d4126b2b7480cfca699d3",
+      "description": "Chandan is coding",
+      "issue_type": "Power",
+      "city": "UNKNOWN",
+      "locality": "Mahuatoli, Namkum, \u0930\u093e\u0901\u091a\u0940, Jharkhand, India",
+      "latitude": 23.347116,
+      "longitude": 85.41581,
+      "reporter_name": "Anushruti",
+      "media_urls": [],
+      "resolved_address": "Mahuatoli, Namkum, \u0930\u093e\u0901\u091a\u0940, Jharkhand, India",
+      "user_entered_location": "Mahuatoli, Namkum, \u0930\u093e\u0901\u091a\u0940, Jharkhand, India",
+      "location_source": "frontend-geocoded",
+      "status": "UNDER_REVIEW",
+      "status_history": [
+        {
+          "from": "",
+          "to": "UNDER_REVIEW",
+          "changed_by": "system",
+          "timestamp": "2026-01-17 11:18:40.405970+00:00",
+          "note": "Report created"
+        }
+      ],
+      "confidence": "LOW",
+      "confidence_reason": "Single report, awaiting corroboration",
+      "ai_metadata": {},
+      "priority_score": null,
+      "priority_reason": null,
+      "escalation_flag": false,
+      "escalation_reason": null,
+      "escalation_history": [],
+      "created_at": "2026-01-17T11:18:40.405970+00:00"
+    },
+    "8d9b804863bc4eecbbe20d054f1b0aba": {
+      "id": "8d9b804863bc4eecbbe20d054f1b0aba",
+      "description": "Chandan is coding",
+      "issue_type": "Roadblock",
+      "city": "UNKNOWN",
+      "locality": "Mahuatoli, Namkum, \u0930\u093e\u0901\u091a\u0940, Jharkhand, India",
+      "latitude": 23.347116,
+      "longitude": 85.41581,
+      "reporter_name": "Anushruti",
+      "media_urls": [],
+      "resolved_address": "Mahuatoli, Namkum, \u0930\u093e\u0901\u091a\u0940, Jharkhand, India",
+      "user_entered_location": "Mahuatoli, Namkum, \u0930\u093e\u0901\u091a\u0940, Jharkhand, India",
+      "location_source": "frontend-geocoded",
+      "status": "UNDER_REVIEW",
+      "status_history": [
+        {
+          "from": "",
+          "to": "UNDER_REVIEW",
+          "changed_by": "system",
+          "timestamp": "2026-01-17 11:29:39.228259+00:00",
+          "note": "Report created"
+        }
+      ],
+      "confidence": "LOW",
+      "confidence_reason": "Single report, awaiting corroboration",
+      "ai_metadata": {},
+      "priority_score": null,
+      "priority_reason": null,
+      "escalation_flag": false,
+      "escalation_reason": null,
+      "escalation_history": [],
+      "created_at": "2026-01-17T11:29:39.228259+00:00"
+    },
+    "7691e69678724169ab6e1cad34adf025": {
+      "id": "7691e69678724169ab6e1cad34adf025",
+      "description": "Chandan is coding",
+      "issue_type": "Power",
+      "city": "UNKNOWN",
+      "locality": "Mahuatoli, Namkum, \u0930\u093e\u0901\u091a\u0940, Jharkhand, India",
+      "latitude": 23.347116,
+      "longitude": 85.41581,
+      "reporter_name": "Anushruti",
+      "media_urls": [],
+      "resolved_address": "Mahuatoli, Namkum, \u0930\u093e\u0901\u091a\u0940, Jharkhand, India",
+      "user_entered_location": "Mahuatoli, Namkum, \u0930\u093e\u0901\u091a\u0940, Jharkhand, India",
+      "location_source": "frontend-geocoded",
+      "status": "UNDER_REVIEW",
+      "status_history": [
+        {
+          "from": "",
+          "to": "UNDER_REVIEW",
+          "changed_by": "system",
+          "timestamp": "2026-01-17 11:33:14.986925+00:00",
+          "note": "Report created"
+        }
+      ],
+      "confidence": "LOW",
+      "confidence_reason": "Single report, awaiting corroboration",
+      "ai_metadata": {},
+      "priority_score": null,
+      "priority_reason": null,
+      "escalation_flag": false,
+      "escalation_reason": null,
+      "escalation_history": [],
+      "created_at": "2026-01-17T11:33:14.986925+00:00"
+    },
+    "e111d8a841b94962a0d3d105219e6b09": {
+      "id": "e111d8a841b94962a0d3d105219e6b09",
+      "description": "Ranchi Hacks Event",
+      "issue_type": "Power",
+      "city": "UNKNOWN",
+      "locality": "Mahuatoli, Namkum, \u0930\u093e\u0901\u091a\u0940, Jharkhand, India",
+      "latitude": 23.347572,
+      "longitude": 85.415161,
+      "reporter_name": "Anushruti",
+      "media_urls": [],
+      "resolved_address": "Mahuatoli, Namkum, \u0930\u093e\u0901\u091a\u0940, Jharkhand, India",
+      "user_entered_location": "Mahuatoli, Namkum, \u0930\u093e\u0901\u091a\u0940, Jharkhand, India",
+      "location_source": "frontend-geocoded",
+      "status": "UNDER_REVIEW",
+      "status_history": [
+        {
+          "from": "",
+          "to": "UNDER_REVIEW",
+          "changed_by": "system",
+          "timestamp": "2026-01-17 12:37:46.659624+00:00",
+          "note": "Report created"
+        }
+      ],
+      "confidence": "LOW",
+      "confidence_reason": "Single report, awaiting corroboration",
+      "ai_metadata": {},
+      "priority_score": null,
+      "priority_reason": null,
+      "escalation_flag": false,
+      "escalation_reason": null,
+      "escalation_history": [],
+      "created_at": "2026-01-17T12:37:46.659624+00:00"
+    },
+    "b41813e69a2147dc9dfc1bba152c36c9": {
+      "id": "b41813e69a2147dc9dfc1bba152c36c9",
+      "description": "RanchiHacks by GDG Ranchi",
+      "issue_type": "Other",
+      "city": "UNKNOWN",
+      "locality": "MDR168, Kulbadia, Chakulia, East Singhbhum, Jharkhand, 832300, India",
+      "latitude": 22.477284,
+      "longitude": 86.71788,
+      "reporter_name": "Anushruti",
+      "media_urls": [],
+      "resolved_address": "MDR168, Kulbadia, Chakulia, East Singhbhum, Jharkhand, 832300, India",
+      "user_entered_location": "MDR168, Kulbadia, Chakulia, East Singhbhum, Jharkhand, 832300, India",
+      "location_source": "frontend-geocoded",
+      "status": "UNDER_REVIEW",
+      "status_history": [
+        {
+          "from": "",
+          "to": "UNDER_REVIEW",
+          "changed_by": "system",
+          "timestamp": "2026-01-17 13:00:13.942471+00:00",
+          "note": "Report created"
+        }
+      ],
+      "confidence": "LOW",
+      "confidence_reason": "Single report, awaiting corroboration",
+      "ai_metadata": {},
+      "priority_score": null,
+      "priority_reason": null,
+      "escalation_flag": false,
+      "escalation_reason": null,
+      "escalation_history": [],
+      "created_at": "2026-01-17T13:00:13.942471+00:00"
+    }
+  },
+  "issues": {},
+  "otps": {
+    "171955b35d834dbda627bff8b24bf808": {
+      "phone_number": "916200015545",
+      "otp": "123456",
+      "expires_at": "2026-01-17T10:35:02.336421",
+      "created_at": "2026-01-17T10:30:02.336542",
+      "verified": false,
+      "attempts": 0
+    },
+    "dae0a13ccc5c47c6960555f8c374601e": {
+      "phone_number": "916287752535",
+      "otp": "591282",
+      "expires_at": "2026-01-17T11:00:15.300815",
+      "created_at": "2026-01-17T10:55:15.314852",
+      "verified": false,
+      "attempts": 0
+    },
+    "65ea081621614a3dba6a38e7d6a38356": {
+      "phone_number": "916287752535",
+      "otp": "273373",
+      "expires_at": "2026-01-17T11:01:13.065173",
+      "created_at": "2026-01-17T10:56:13.065308",
+      "verified": false,
+      "attempts": 0
+    },
+    "33bbc00ea02e48fe9376fa7323ceca1e": {
+      "phone_number": "916200015545",
+      "otp": "123456",
+      "expires_at": "2026-01-17T11:01:58.802469",
+      "created_at": "2026-01-17T10:56:58.802601",
+      "verified": false,
+      "attempts": 0
+    },
+    "5d3344c7c8d7414baf4af99f678aba80": {
+      "phone_number": "91628775235",
+      "otp": "136808",
+      "expires_at": "2026-01-17T11:02:28.138068",
+      "created_at": "2026-01-17T10:57:28.138175",
+      "verified": false,
+      "attempts": 0
+    },
+    "5b5d79bfb8ae4d979b46aebe92a8c608": {
+      "phone_number": "916200015545",
+      "otp": "123456",
+      "expires_at": "2026-01-17T11:03:25.887049",
+      "created_at": "2026-01-17T10:58:25.887191",
+      "verified": false,
+      "attempts": 0
+    },
+    "bd4080d363e24e8faa1677c2567df80b": {
+      "phone_number": "916200015545",
+      "otp": "123456",
+      "expires_at": "2026-01-17T11:14:41.822574",
+      "created_at": "2026-01-17T11:09:41.828506",
+      "verified": false,
+      "attempts": 0
+    },
+    "eb943f0af0804ef1a2055ada8b12bec0": {
+      "phone_number": "916200015545",
+      "otp": "123456",
+      "expires_at": "2026-01-17T11:17:06.574006",
+      "created_at": "2026-01-17T11:12:06.576281",
+      "verified": false,
+      "attempts": 0
+    },
+    "0728485c34e149c1becfd9cd108555f4": {
+      "phone_number": "916200015545",
+      "otp": "123456",
+      "expires_at": "2026-01-17T13:02:32.038477",
+      "created_at": "2026-01-17T12:57:32.041848",
+      "verified": false,
+      "attempts": 0
+    }
+  },
+  "users": {
+    "272c8a3d52f64a3ca8487bb128c44483": {
+      "phone_number": "916200015545",
+      "name": null,
+      "is_verified": true,
+      "created_at": "2026-01-17T10:30:06.472050",
+      "last_login_at": "2026-01-17T12:57:36.616919"
     }
   }
 }

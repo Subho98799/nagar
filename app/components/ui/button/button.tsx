@@ -4,7 +4,7 @@ import classNames from "classnames";
 import styles from "./button.module.css";
 
 interface ButtonProps extends React.ComponentProps<"button"> {
-  variant?: "default" | "destructive" | "outline" | "secondary" | "link";
+  variant?: "default" | "destructive" | "outline" | "secondary" | "link" | "ghost";
   size?: "default" | "sm" | "lg" | "icon";
   asChild?: boolean;
 }

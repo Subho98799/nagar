@@ -12,7 +12,6 @@ from typing import Optional
 # Global Firestore client instance
 db: Optional[firestore.Client] = None
 
-
 def initialize_firestore() -> firestore.Client:
     """
     Initialize Firebase Admin SDK and return Firestore client.

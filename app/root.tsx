@@ -47,7 +47,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <script src={colorSchemeApi}></script>
         <Links />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         {children}
         <Footer />
         <Toaster />

@@ -1,3 +1,6 @@
+#RACHI HACKS 2026 , GDG RANCHI
+
+
 # Nagar Alert Hub - Backend
 
 A WhatsApp-first civic alert system for Tier-2 and Tier-3 cities in India.

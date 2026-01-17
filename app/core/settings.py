@@ -34,9 +34,16 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: Optional[str] = None  # Google Gemini API key (optional)
     AI_TIMEOUT_SECONDS: float = 10.0  # AI inference timeout
     
+    # JWT Authentication
+    JWT_SECRET_KEY: str = "dev-secret-key-change-in-production"
+    JWT_ALGORITHM: str = "HS256"
+    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
+    JWT_REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+    
     class Config:
         env_file = ".env"
         case_sensitive = True
+        extra = "ignore"  # Ignore extra environment variables
 
 
 # Global settings instance

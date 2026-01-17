@@ -1,5 +1,6 @@
 import { MapPin, Clock, Users, AlertCircle, CheckCircle2, HelpCircle } from "lucide-react";
 import { Link } from "react-router";
+import { useTranslation } from "react-i18next";
 import type { Issue } from "~/data/mock-issues";
 import { Badge } from "~/components/ui/badge/badge";
 import styles from "./issue-card.module.css";
@@ -14,9 +15,9 @@ interface IssueCardProps {
 }
 
 const severityConfig = {
-  Low: { label: "Low Impact", className: "severityLow" },
-  Medium: { label: "Medium Impact", className: "severityMedium" },
-  High: { label: "High Impact", className: "severityHigh" },
+  Low: { label: "issueCard.lowImpact", className: "severityLow" },
+  Medium: { label: "issueCard.mediumImpact", className: "severityMedium" },
+  High: { label: "issueCard.highImpact", className: "severityHigh" },
 };
 
 const confidenceConfig = {
@@ -29,6 +30,7 @@ const confidenceConfig = {
  * Card component displaying issue summary
  */
 export function IssueCard({ issue, className }: IssueCardProps) {
+  const { t } = useTranslation();
   const timeAgo = new Date(issue.timestamp).toLocaleTimeString("en-US", {
     hour: "2-digit",
     minute: "2-digit",
@@ -57,11 +59,11 @@ export function IssueCard({ issue, className }: IssueCardProps) {
           </div>
           <div className={styles.metaItem}>
             <Users className={styles.metaIcon} />
-            <span>{issue.reportCount} reports</span>
+            <span>{issue.reportCount} {t('issue.reports')}</span>
           </div>
           <div className={`${styles.metaItem} ${styles[severityConfig[issue.severity].className]}`}>
             <AlertCircle className={styles.metaIcon} />
-            <span>{severityConfig[issue.severity].label}</span>
+            <span>{t(severityConfig[issue.severity].label)}</span>
           </div>
         </div>
         <div className={`${styles.confidenceBadge} ${styles[confidenceConfig[issue.confidence].className]}`}>
@@ -69,7 +71,7 @@ export function IssueCard({ issue, className }: IssueCardProps) {
             const Icon = confidenceConfig[issue.confidence].icon;
             return <Icon className={styles.confidenceIcon} />;
           })()}
-          <span>{issue.confidence} Confidence</span>
+          <span>{issue.confidence} {t('issue.confidence')}</span>
         </div>
       </div>
     </Link>

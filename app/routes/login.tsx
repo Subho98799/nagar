@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 import { Header } from "~/components/header";
 import { Button } from "~/components/ui/button/button";
@@ -7,6 +8,7 @@ import { sendOTP } from "~/lib/auth";
 import styles from "./login.module.css";
 
 export default function Login() {
+  const { t } = useTranslation();
   const [phoneNumber, setPhoneNumber] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -49,14 +51,14 @@ export default function Login() {
       <main className={styles.container}>
         <div className={styles.card}>
           <div className={styles.header}>
-            <h1 className={styles.title}>Login with Phone</h1>
-            <p className={styles.subtitle}>Enter your phone number to receive an OTP</p>
+            <h1 className={styles.title}>{t('auth.loginTitle')}</h1>
+            <p className={styles.subtitle}>{t('auth.enterPhone')}</p>
           </div>
 
           <form onSubmit={handleSendOTP} className={styles.form}>
             <div className={styles.field}>
               <label className={styles.label} htmlFor="phone">
-                Phone Number <span className={styles.required}>*</span>
+                {t('auth.phone')} <span className={styles.required}>*</span>
               </label>
               <Input
                 id="phone"
@@ -78,7 +80,7 @@ export default function Login() {
             )}
 
             <Button type="submit" size="lg" disabled={loading} className={styles.submitButton}>
-              {loading ? "Sending OTP..." : "Send OTP"}
+              {loading ? `${t('common.loading')}...` : t('auth.sendOTP')}
             </Button>
           </form>
         </div>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Shield, MapPin, User } from "lucide-react";
 import { Header } from "~/components/header";
 import { Button } from "~/components/ui/button/button";
@@ -19,6 +20,7 @@ const severityVariant = {
 };
 
 export default function Admin() {
+  const { t } = useTranslation();
   const [issues, setIssues] = useState<Issue[]>(mockIssues);
 
   useEffect(() => {
@@ -102,7 +104,7 @@ export default function Admin() {
         <div className={styles.header}>
           <h1 className={styles.title}>
             <Shield className={styles.titleIcon} />
-            Operator Console
+            {t('admin.title')}
           </h1>
           <p className={styles.subtitle}>Human-in-the-loop oversight for safety and governance</p>
           <div className={styles.badge}>
@@ -127,7 +129,7 @@ export default function Admin() {
 
               <div className={styles.controls}>
                 <div className={styles.controlGroup}>
-                  <label className={styles.controlLabel}>Confidence Level</label>
+                  <label className={styles.controlLabel}>{t('admin.priority')}</label>
                   <Select
                     value={issue.confidence}
                     onValueChange={(value) => handleConfidenceChange(issue.id, value as Confidence)}
@@ -144,15 +146,15 @@ export default function Admin() {
                 </div>
 
                 <div className={styles.controlGroup}>
-                  <label className={styles.controlLabel}>Status</label>
+                  <label className={styles.controlLabel}>{t('admin.assignTo')}</label>
                   <Select value={issue.status} onValueChange={(value) => handleStatusChange(issue.id, value as Status)}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Under Review">Under Review</SelectItem>
+                      <SelectItem value="Under Review">{t('admin.pending')}</SelectItem>
                       <SelectItem value="Active">Active</SelectItem>
-                      <SelectItem value="Resolved">Resolved</SelectItem>
+                      <SelectItem value="Resolved">{t('admin.resolved')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -167,7 +169,7 @@ export default function Admin() {
                   onChange={(e) => handleNotesChange(issue.id, e.target.value)}
                 />
                 <Button className={styles.saveButton} onClick={() => handleSave(issue.id)}>
-                  Save Changes
+                  {t('common.save')}
                 </Button>
               </div>
             </div>

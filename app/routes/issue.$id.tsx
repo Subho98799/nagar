@@ -1,5 +1,6 @@
 import { Link, useParams } from "react-router";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { Issue } from "~/data/mock-issues";
 import { ArrowLeft, MapPin, Clock, Users, AlertCircle } from "lucide-react";
 import { Header } from "~/components/header";
@@ -23,6 +24,7 @@ const confidenceColor = {
 };
 
 export default function IssueDetail() {
+  const { t } = useTranslation();
   const { id } = useParams();
   // Use React state for `issue`; effects will populate it based on USE_MOCK or live fetch.
   const [issue, setIssue] = useState<Issue | undefined>(undefined);

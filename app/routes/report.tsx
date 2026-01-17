@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { API_BASE_URL } from "~/lib/config";
 import { Upload, CheckCircle } from "lucide-react";
 import { Header } from "~/components/header";
@@ -10,6 +11,7 @@ import type { IssueType } from "~/data/mock-issues";
 import styles from "./report.module.css";
 
 export default function Report() {
+  const { t } = useTranslation();
   const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState({
     type: "" as IssueType | "",
@@ -107,7 +109,7 @@ export default function Report() {
   // Capture current location once when user clicks the button.
   const handleUseCurrentLocation = () => {
     if (!navigator.geolocation) {
-      alert("Geolocation is not supported by your browser.");
+      alert(t('report.geoNotSupported'));
       return;
     }
 
@@ -132,7 +134,7 @@ export default function Report() {
       },
       (err) => {
         console.warn("Geolocation failed:", err);
-        alert("Unable to get your location. Please allow location access or enter location manually.");
+        alert(t('report.unableToGetLocation'));
       },
       { enableHighAccuracy: false, timeout: 10000, maximumAge: 0 }
     );
@@ -146,12 +148,11 @@ export default function Report() {
           <div className={styles.card}>
             <div className={styles.successMessage}>
               <CheckCircle className={styles.successIcon} />
-              <h2 className={styles.successTitle}>Thank you for helping improve your city!</h2>
+              <h2 className={styles.successTitle}>{t('report.successTitle')}</h2>
               <p className={styles.successText}>
-                Your report has been received and will be reviewed by our team. We'll update the city dashboard as we
-                gather more information.
+                {t('report.successMessage')}
               </p>
-              <Button onClick={() => setSubmitted(false)}>Submit Another Report</Button>
+              <Button onClick={() => setSubmitted(false)}>{t('report.submitAnother')}</Button>
             </div>
           </div>
         </main>
@@ -164,10 +165,9 @@ export default function Report() {
       <Header />
       <main className={styles.container}>
         <div className={styles.header}>
-          <h1 className={styles.title}>Report an Issue</h1>
+          <h1 className={styles.title}>{t('report.reportIssue')}</h1>
           <p className={styles.subtitle}>
-            Help your community by sharing what you're observing. Your report will be reviewed and contribute to our
-            shared city understanding.
+            {t('report.reportDescription')}
           </p>
         </div>
 
@@ -175,36 +175,36 @@ export default function Report() {
           <form className={styles.form} onSubmit={handleSubmit}>
             <div className={styles.field}>
               <label className={styles.label}>
-                What type of issue are you reporting? <span className={styles.required}>*</span>
+                {t('report.issueType')} <span className={styles.required}>*</span>
               </label>
               <Select
                 value={formData.type}
                 onValueChange={(value) => setFormData({ ...formData, type: value as IssueType })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select issue type" />
+                  <SelectValue placeholder={t('report.selectIssueType')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Traffic">Traffic</SelectItem>
-                  <SelectItem value="Power">Power Outage</SelectItem>
-                  <SelectItem value="Water">Water Supply</SelectItem>
-                  <SelectItem value="Roadblock">Road Closure / Roadblock</SelectItem>
-                  <SelectItem value="Safety">Safety Concern</SelectItem>
-                  <SelectItem value="Other">Other</SelectItem>
+                  <SelectItem value="Traffic">{t('report.traffic')}</SelectItem>
+                  <SelectItem value="Power">{t('report.powerOutage')}</SelectItem>
+                  <SelectItem value="Water">{t('report.waterSupply')}</SelectItem>
+                  <SelectItem value="Roadblock">{t('report.roadClosure')}</SelectItem>
+                  <SelectItem value="Safety">{t('report.safetyConcern')}</SelectItem>
+                  <SelectItem value="Other">{t('report.other')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className={styles.field}>
               <label className={styles.label} htmlFor="location">
-                Where is this happening? <span className={styles.required}>*</span>
+                {t('report.location')} <span className={styles.required}>*</span>
               </label>
 
               <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
                 <Input
                   id="location"
                   type="text"
-                  placeholder="e.g., Main Chowk, Station Road"
+                  placeholder={t('report.locationPlaceholder')}
                   value={formData.location}
                   onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                   required
@@ -215,49 +215,63 @@ export default function Report() {
                   type="button"
                   className={styles.locationButton}
                   onClick={handleUseCurrentLocation}
-                  title="Use my current location"
+                  title={t('report.useCurrentLocation')}
                   style={{ padding: "8px 10px" }}
                 >
-                  📍 Use my current location
+                  📍 {t('report.useCurrentLocation')}
                 </button>
               </div>
 
+<<<<<<< Updated upstream
               <span className={styles.helpText}>Provide a landmark or street name that others will recognize</span>
               <div style={{ marginTop: 6 }} className={styles.helpText}>
                 <small>Location is used only for this report.</small>
               </div>
+=======
+              <span className={styles.helpText}>{t('report.locationHint')}</span>
+              {resolvedAddress && locationSource === "frontend-geocoded" && (
+                <div style={{ marginTop: 6 }} className={styles.helpText}>
+                  <small>{t('report.addressAutodetected')}</small>
+                </div>
+              )}
+              {!resolvedAddress && (
+                <div style={{ marginTop: 6 }} className={styles.helpText}>
+                  <small>{t('report.locationUsage')}</small>
+                </div>
+              )}
+>>>>>>> Stashed changes
 
               {showTempMarker && coords.latitude && coords.longitude && (
                 <div className={styles.tempMarker}>
-                  <strong>Location captured:</strong> {coords.latitude.toFixed(5)}, {coords.longitude.toFixed(5)}
+                  <strong>{t('report.locationCaptured')}:</strong> {coords.latitude.toFixed(5)}, {coords.longitude.toFixed(5)}
                 </div>
               )}
             </div>
 
             <div className={styles.field}>
               <label className={styles.label} htmlFor="description">
-                What are you observing? <span className={styles.required}>*</span>
+                {t('report.observation')} <span className={styles.required}>*</span>
               </label>
               <Textarea
                 id="description"
-                placeholder="Describe what you're seeing or experiencing..."
+                placeholder={t('report.observationPlaceholder')}
                 rows={5}
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 required
               />
               <span className={styles.helpText}>
-                Be specific but concise. This helps others understand the situation.
+                {t('report.observationHint')}
               </span>
             </div>
 
             <div className={styles.field}>
-              <label className={styles.label}>Photo or Video (Optional)</label>
+              <label className={styles.label}>{t('report.media')} ({t('common.optional')})</label>
               <div className={styles.fileInput}>
                 <label className={styles.fileInputLabel}>
                   <Upload className={styles.uploadIcon} />
-                  <span className={styles.fileInputText}>Click to upload or drag and drop</span>
-                  <span className={styles.fileInputHint}>PNG, JPG, MP4 up to 10MB</span>
+                  <span className={styles.fileInputText}>{t('report.uploadPrompt')}</span>
+                  <span className={styles.fileInputHint}>{t('report.uploadHint')}</span>
                   <input type="file" accept="image/*,video/*" style={{ display: "none" }} />
                 </label>
               </div>
@@ -268,13 +282,13 @@ export default function Report() {
                 <Input
                   id="reporter_name"
                   type="text"
-                  placeholder="Your Name (optional)"
+                  placeholder={t('report.reporterName')}
                   value={reporterName}
                   onChange={(e) => setReporterName(e.target.value)}
                   style={{ flex: 1 }}
                 />
                 <Button type="submit" size="lg" style={{ flex: 1 }}>
-                  Submit Report
+                  {t('report.submitReport')}
                 </Button>
               </div>
             </div>

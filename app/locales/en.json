@@ -1,0 +1,115 @@
+{
+  "common": {
+    "dashboard": "Dashboard",
+    "cityPulse": "City Pulse",
+    "map": "Map",
+    "report": "Report",
+    "updates": "Updates",
+    "admin": "Admin",
+    "timeline": "Timeline",
+    "logout": "Logout",
+    "login": "Login",
+    "appName": "Nagar Alert Hub",
+    "tagline": "Civic Intelligence Platform",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search",
+    "language": "Language"
+  },
+  "home": {
+    "title": "Dashboard",
+    "recentAlerts": "Recent Alerts",
+    "noAlerts": "No alerts at this time",
+    "cityHealth": "City Health",
+    "criticalIssues": "Critical Issues",
+    "totalReports": "Total Reports"
+  },
+  "cityPulse": {
+    "title": "City Pulse",
+    "overview": "City Overview",
+    "health": "Health",
+    "temperature": "Temperature",
+    "humidity": "Humidity",
+    "airQuality": "Air Quality",
+    "traffic": "Traffic",
+    "selectCity": "Select a City"
+  },
+  "map": {
+    "title": "Map View",
+    "zoomIn": "Zoom In",
+    "zoomOut": "Zoom Out",
+    "noIssues": "No issues found in this area",
+    "issueDetails": "Issue Details"
+  },
+  "report": {
+    "title": "Report an Issue",
+    "category": "Category",
+    "location": "Location",
+    "description": "Description",
+    "photo": "Photo",
+    "selectCategory": "Select Category",
+    "enterLocation": "Enter Location",
+    "describeIssue": "Describe the issue",
+    "uploadPhoto": "Upload Photo",
+    "submitReport": "Submit Report",
+    "reportSubmitted": "Report submitted successfully",
+    "categories": {
+      "water": "Water Supply",
+      "sanitation": "Sanitation",
+      "roads": "Roads & Potholes",
+      "streetlight": "Street Light",
+      "pollution": "Pollution",
+      "noise": "Noise",
+      "other": "Other"
+    }
+  },
+  "updates": {
+    "title": "Updates",
+    "recentUpdates": "Recent Updates",
+    "noUpdates": "No updates available",
+    "readMore": "Read More"
+  },
+  "admin": {
+    "title": "Admin Dashboard",
+    "allReports": "All Reports",
+    "resolved": "Resolved",
+    "pending": "Pending",
+    "markResolved": "Mark Resolved",
+    "assignTo": "Assign To",
+    "priority": "Priority"
+  },
+  "timeline": {
+    "title": "Timeline",
+    "events": "Events",
+    "date": "Date",
+    "noEvents": "No events in timeline"
+  },
+  "auth": {
+    "loginTitle": "Login to Nagar Alert Hub",
+    "email": "Email",
+    "phone": "Phone",
+    "password": "Password",
+    "otp": "OTP",
+    "sendOTP": "Send OTP",
+    "verifyOTP": "Verify OTP",
+    "enterEmail": "Enter your email",
+    "enterPhone": "Enter your phone number",
+    "enterPassword": "Enter your password",
+    "enterOTP": "Enter OTP",
+    "loginButton": "Login",
+    "orContinueWith": "Or continue with",
+    "google": "Google",
+    "noAccount": "Don't have an account?",
+    "createAccount": "Create Account",
+    "alreadyHaveAccount": "Already have an account?",
+    "login": "Login",
+    "invalidCredentials": "Invalid credentials",
+    "loginSuccess": "Login successful"
+  }
+}

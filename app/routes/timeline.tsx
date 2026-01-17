@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Header } from "~/components/header";
 import { TimelinePost } from "~/components/timeline-post";
 import { IssueAnalyticsPanel } from "~/components/issue-analytics-panel";
@@ -8,6 +9,7 @@ import { useNavigate } from "react-router";
 import styles from "./timeline.module.css";
 
 export default function Timeline() {
+  const { t } = useTranslation();
   const [issues, setIssues] = useState<TimelineIssue[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedIssueId, setSelectedIssueId] = useState<string | null>(null);
@@ -51,7 +53,7 @@ export default function Timeline() {
       <div className={styles.page}>
         <Header />
         <main className={styles.container}>
-          <div className={styles.loading}>Loading timeline...</div>
+          <div className={styles.loading}>{t('common.loading')}</div>
         </main>
       </div>
     );
@@ -63,14 +65,14 @@ export default function Timeline() {
       <main className={styles.main}>
         <div className={styles.timelineContainer}>
           <div className={styles.header}>
-            <h1 className={styles.title}>Issue Timeline</h1>
-            <p className={styles.subtitle}>Stay updated with all civic issues in your city</p>
+            <h1 className={styles.title}>{t('timeline.title')}</h1>
+            <p className={styles.subtitle}>{t('timeline.events')}</p>
           </div>
 
           <div className={styles.feed}>
             {issues.length === 0 ? (
               <div className={styles.empty}>
-                <p>No issues found. Be the first to report an issue!</p>
+                <p>{t('timeline.noEvents')}</p>
               </div>
             ) : (
               issues.map((issue) => (

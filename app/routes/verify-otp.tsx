@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router";
+import { useTranslation } from "react-i18next";
 import { Header } from "~/components/header";
 import { Button } from "~/components/ui/button/button";
 import { Input } from "~/components/ui/input/input";
@@ -7,6 +8,7 @@ import { verifyOTP, sendOTP } from "~/lib/auth";
 import styles from "./verify-otp.module.css";
 
 export default function VerifyOTP() {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const phoneNumber = searchParams.get("phone") || "";
   const navigate = useNavigate();
@@ -49,10 +51,10 @@ export default function VerifyOTP() {
         // Navigate to home page after successful authentication
         navigate("/");
       } else {
-        setError(result.message || "Invalid OTP. Please try again.");
+        setError(result.message || t('auth.invalidCredentials'));
       }
     } catch (err: any) {
-      setError(err.message || "Failed to verify OTP. Please try again.");
+      setError(err.message || t('auth.failedToSendOTP'));
     } finally {
       setLoading(false);
     }
@@ -68,10 +70,10 @@ export default function VerifyOTP() {
         setCountdown(60); // 60 second countdown
         setOtp(""); // Clear current OTP
       } else {
-        setError(result.message || "Failed to resend OTP");
+        setError(result.message || t('auth.failedToSendOTP'));
       }
     } catch (err: any) {
-      setError(err.message || "Failed to resend OTP. Please try again.");
+      setError(err.message || t('auth.failedToSendOTP'));
     } finally {
       setResending(false);
     }
@@ -93,16 +95,16 @@ export default function VerifyOTP() {
       <main className={styles.container}>
         <div className={styles.card}>
           <div className={styles.header}>
-            <h1 className={styles.title}>Verify OTP</h1>
+            <h1 className={styles.title}>{t('auth.verifyOTP')}</h1>
             <p className={styles.subtitle}>
-              Enter the 6-digit OTP sent to <strong>{phoneNumber}</strong>
+              {t('auth.enterOTP')} <strong>{phoneNumber}</strong>
             </p>
           </div>
 
           <form onSubmit={handleVerifyOTP} className={styles.form}>
             <div className={styles.field}>
               <label className={styles.label} htmlFor="otp">
-                OTP Code <span className={styles.required}>*</span>
+                {t('auth.otp')} <span className={styles.required}>*</span>
               </label>
               <Input
                 id="otp"
@@ -117,7 +119,7 @@ export default function VerifyOTP() {
                 maxLength={6}
                 autoFocus
               />
-              <span className={styles.helpText}>Enter the 6-digit code sent to your phone</span>
+              <span className={styles.helpText}>{t('auth.pleaseEnter6DigitOTP')}</span>
             </div>
 
             {error && (
@@ -127,11 +129,11 @@ export default function VerifyOTP() {
             )}
 
             <Button type="submit" size="lg" disabled={loading || otp.length !== 6} className={styles.submitButton}>
-              {loading ? "Verifying..." : "Verify OTP"}
+              {loading ? `${t('auth.verifying')}` : t('auth.verifyOTP')}
             </Button>
 
             <div className={styles.resendSection}>
-              <p className={styles.resendText}>Didn't receive the OTP?</p>
+              <p className={styles.resendText}>{t('auth.didntReceiveOTP')}</p>
               <Button
                 type="button"
                 variant="outline"
@@ -139,7 +141,7 @@ export default function VerifyOTP() {
                 disabled={resending || countdown > 0}
                 className={styles.resendButton}
               >
-                {countdown > 0 ? `Resend OTP in ${countdown}s` : resending ? "Sending..." : "Resend OTP"}
+                {countdown > 0 ? `${t('auth.resendOTP')} ${countdown}s` : resending ? `${t('common.loading')}...` : t('auth.resendOTP')}
               </Button>
             </div>
 
@@ -149,7 +151,7 @@ export default function VerifyOTP() {
               onClick={() => navigate("/login")}
               className={styles.backButton}
             >
-              Change Phone Number
+              {t('auth.changePhone')}
             </Button>
           </form>
         </div>

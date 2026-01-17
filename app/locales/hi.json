@@ -1,0 +1,115 @@
+{
+  "common": {
+    "dashboard": "डैशबोर्ड",
+    "cityPulse": "शहर की नब्ज",
+    "map": "मानचित्र",
+    "report": "रिपोर्ट",
+    "updates": "अपडेट्स",
+    "admin": "प्रशासन",
+    "timeline": "समय सारणी",
+    "logout": "लॉग आउट",
+    "login": "लॉगिन",
+    "appName": "नागर सतर्कता केंद्र",
+    "tagline": "नागरिक बुद्धिमत्ता मंच",
+    "loading": "लोड हो रहा है...",
+    "error": "त्रुटि",
+    "success": "सफल",
+    "cancel": "रद्द करें",
+    "submit": "जमा करें",
+    "save": "सहेजें",
+    "delete": "हटाएं",
+    "edit": "संपादित करें",
+    "search": "खोजें",
+    "language": "भाषा"
+  },
+  "home": {
+    "title": "डैशबोर्ड",
+    "recentAlerts": "हाल की सतर्कताएं",
+    "noAlerts": "इस समय कोई सतर्कता नहीं",
+    "cityHealth": "शहर का स्वास्थ्य",
+    "criticalIssues": "गंभीर समस्याएं",
+    "totalReports": "कुल रिपोर्ट"
+  },
+  "cityPulse": {
+    "title": "शहर की नब्ज",
+    "overview": "शहर का अवलोकन",
+    "health": "स्वास्थ्य",
+    "temperature": "तापमान",
+    "humidity": "आर्द्रता",
+    "airQuality": "वायु गुणवत्ता",
+    "traffic": "यातायात",
+    "selectCity": "शहर चुनें"
+  },
+  "map": {
+    "title": "मानचित्र दृश्य",
+    "zoomIn": "ज़ूम इन करें",
+    "zoomOut": "ज़ूम आउट करें",
+    "noIssues": "इस क्षेत्र में कोई समस्या नहीं मिली",
+    "issueDetails": "समस्या विवरण"
+  },
+  "report": {
+    "title": "समस्या की रिपोर्ट करें",
+    "category": "श्रेणी",
+    "location": "स्थान",
+    "description": "विवरण",
+    "photo": "फोटो",
+    "selectCategory": "श्रेणी चुनें",
+    "enterLocation": "स्थान दर्ज करें",
+    "describeIssue": "समस्या का वर्णन करें",
+    "uploadPhoto": "फोटो अपलोड करें",
+    "submitReport": "रिपोर्ट जमा करें",
+    "reportSubmitted": "रिपोर्ट सफलतापूर्वक जमा की गई",
+    "categories": {
+      "water": "जल आपूर्ति",
+      "sanitation": "स्वच्छता",
+      "roads": "सड़कें और गड्ढे",
+      "streetlight": "स्ट्रीट लाइट",
+      "pollution": "प्रदूषण",
+      "noise": "शोर",
+      "other": "अन्य"
+    }
+  },
+  "updates": {
+    "title": "अपडेट्स",
+    "recentUpdates": "हाल के अपडेट्स",
+    "noUpdates": "कोई अपडेट उपलब्ध नहीं",
+    "readMore": "और पढ़ें"
+  },
+  "admin": {
+    "title": "प्रशासन डैशबोर्ड",
+    "allReports": "सभी रिपोर्ट्स",
+    "resolved": "हल किया गया",
+    "pending": "लंबित",
+    "markResolved": "हल के रूप में चिह्नित करें",
+    "assignTo": "को सौंपें",
+    "priority": "प्राथमिकता"
+  },
+  "timeline": {
+    "title": "समय सारणी",
+    "events": "घटनाएं",
+    "date": "तारीख",
+    "noEvents": "समय सारणी में कोई घटना नहीं"
+  },
+  "auth": {
+    "loginTitle": "नागर सतर्कता केंद्र में लॉगिन करें",
+    "email": "ईमेल",
+    "phone": "फोन",
+    "password": "पासवर्ड",
+    "otp": "OTP",
+    "sendOTP": "OTP भेजें",
+    "verifyOTP": "OTP सत्यापित करें",
+    "enterEmail": "अपना ईमेल दर्ज करें",
+    "enterPhone": "अपना फोन नंबर दर्ज करें",
+    "enterPassword": "अपना पासवर्ड दर्ज करें",
+    "enterOTP": "OTP दर्ज करें",
+    "loginButton": "लॉगिन",
+    "orContinueWith": "या जारी रखें",
+    "google": "गूगल",
+    "noAccount": "खाता नहीं है?",
+    "createAccount": "खाता बनाएं",
+    "alreadyHaveAccount": "पहले से खाता है?",
+    "login": "लॉगिन",
+    "invalidCredentials": "अमान्य क्रेडेंशियल",
+    "loginSuccess": "लॉगिन सफल"
+  }
+}

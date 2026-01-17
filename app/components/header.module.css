@@ -97,6 +97,34 @@
   gap: var(--space-3);
 }
 
+.languageButton {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-2);
+  color: var(--color-neutral-11);
+  font-size: var(--font-size-1);
+  font-weight: 500;
+  transition: all 0.2s var(--ease-out);
+  cursor: pointer;
+}
+
+.languageButton:hover {
+  background-color: var(--color-neutral-3);
+  color: var(--color-neutral-12);
+}
+
+.languageIcon {
+  width: 18px;
+  height: 18px;
+}
+
+.languageText {
+  font-weight: 600;
+  font-size: var(--font-size-0);
+}
+
 .userInfo {
   display: flex;
   align-items: center;

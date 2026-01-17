@@ -1,9 +1,11 @@
 import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
+import { useEffect } from "react";
 
 import type { Route } from "./+types/root";
 import { Toaster } from "./components/ui/toaster/toaster";
 import { Footer } from "./components/footer";
 import colorSchemeApi from "@dazl/color-scheme/client?url";
+import "~/lib/i18n";
 
 import "./styles/reset.css";
 import "./styles/global.css";
@@ -38,6 +40,13 @@ export const links: Route.LinksFunction = () => [
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { rootCssClass, resolvedScheme } = useColorScheme();
+  
+  useEffect(() => {
+    // Get current language from localStorage or browser default
+    const currentLang = localStorage.getItem('i18nextLng') || 'en';
+    document.documentElement.lang = currentLang;
+  }, []);
+  
   return (
     <html lang="en" suppressHydrationWarning className={rootCssClass} style={{ colorScheme: resolvedScheme }}>
       <head>

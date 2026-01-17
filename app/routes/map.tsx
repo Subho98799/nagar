@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Header } from "~/components/header";
 import { mockIssues } from "~/data/mock-issues";
 import { fetchIssues } from "~/lib/api";
@@ -7,6 +8,7 @@ import styles from "./map.module.css";
 const CityMap = lazy(() => import("~/components/city-map").then(m => ({ default: m.CityMap })));
 
 export default function MapPage() {
+  const { t } = useTranslation();
   const [issues, setIssues] = useState<typeof mockIssues>(mockIssues);
 
   useEffect(() => {
@@ -77,47 +79,46 @@ export default function MapPage() {
       <Header />
       <main className={styles.container}>
         <div className={styles.header}>
-          <h1 className={styles.title}>Live Disruption Map</h1>
+          <h1 className={styles.title}>{t('map.mapTitle')}</h1>
           <p className={styles.description}>
-            Real-time visualization of all reported disruptions across the city. Click on pulsing markers to view
-            detailed information about each incident.
+            {t('map.mapDescription')}
           </p>
           <div className={styles.stats}>
             <div className={styles.stat}>
               <span className={styles.statValue}>{activeIssues.length}</span>
-              <span className={styles.statLabel}>Active Disruptions</span>
+              <span className={styles.statLabel}>{t('map.activeDisruptions')}</span>
             </div>
             <div className={styles.stat}>
               <span className={styles.statValue}>{activeIssues.filter((i) => i.severity === "High").length}</span>
-              <span className={styles.statLabel}>High Severity</span>
+              <span className={styles.statLabel}>{t('map.highSeverity')}</span>
             </div>
             <div className={styles.stat}>
               <span className={styles.statValue}>
                 {activeIssues.reduce((sum, issue) => sum + issue.reportCount, 0)}
               </span>
-              <span className={styles.statLabel}>Total Reports</span>
+              <span className={styles.statLabel}>{t('map.totalReports')}</span>
             </div>
           </div>
         </div>
 
-        <Suspense fallback={<div className={styles.mapPlaceholder}>Loading map...</div>}>
+        <Suspense fallback={<div className={styles.mapPlaceholder}>{t('map.loadingMap')}</div>}>
           <CityMap issues={issues} className={styles.map} />
         </Suspense>
 
         <div className={styles.legend}>
-          <h3 className={styles.legendTitle}>Severity Indicators</h3>
+          <h3 className={styles.legendTitle}>{t('map.severityIndicators')}</h3>
           <div className={styles.legendItems}>
             <div className={styles.legendItem}>
               <span className={`${styles.legendMarker} ${styles.high}`}></span>
-              <span>High Severity - Immediate attention required</span>
+              <span>{t('map.highSeverity')} - {t('map.immediateAttention')}</span>
             </div>
             <div className={styles.legendItem}>
               <span className={`${styles.legendMarker} ${styles.medium}`}></span>
-              <span>Medium Severity - Monitoring ongoing</span>
+              <span>{t('map.mediumSeverity')} - {t('map.monitoringOngoing')}</span>
             </div>
             <div className={styles.legendItem}>
               <span className={`${styles.legendMarker} ${styles.low}`}></span>
-              <span>Low Severity - Minor disruption</span>
+              <span>{t('map.lowSeverity')} - {t('map.minorDisruption')}</span>
             </div>
           </div>
         </div>

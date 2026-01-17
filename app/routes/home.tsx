@@ -1,5 +1,6 @@
 import { useState, lazy, Suspense, useEffect } from "react";
 import { CheckCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Header } from "~/components/header";
 import { CityPulse } from "~/components/city-pulse";
 import { IssueCard } from "~/components/issue-card";
@@ -12,6 +13,7 @@ import styles from "./home.module.css";
 const CityMap = lazy(() => import("~/components/city-map").then(m => ({ default: m.CityMap })));
 
 export default function Home() {
+  const { t } = useTranslation();
   const [statusFilter, setStatusFilter] = useState<Status | "All">("All");
   const [issues, setIssues] = useState<typeof mockIssues>(mockIssues);
 
@@ -87,7 +89,7 @@ export default function Home() {
               className={`${styles.filterButton} ${statusFilter === status ? styles.active : ""}`}
               onClick={() => setStatusFilter(status)}
             >
-              {status}
+              {status === "All" ? t('home.allStatuses') : t(`home.status.${status.toLowerCase().replace(' ', '')}`)}
             </button>
           ))}
         </div>
@@ -101,17 +103,17 @@ export default function Home() {
         ) : (
           <div className={styles.empty}>
             <CheckCircle className={styles.emptyIcon} />
-            <h3 className={styles.emptyTitle}>No issues found</h3>
-            <p>There are no {statusFilter.toLowerCase()} issues at the moment.</p>
+            <h3 className={styles.emptyTitle}>{t('home.noAlerts')}</h3>
+            <p>{t('home.noIssuesMessage', { status: statusFilter.toLowerCase() })}</p>
           </div>
         )}
 
         <section className={styles.mapSection}>
-          <h2 className={styles.sectionTitle}>Live Disruption Map</h2>
+          <h2 className={styles.sectionTitle}>{t('home.cityHealth')}</h2>
           <p className={styles.sectionDescription}>
-            Interactive view of all active disruptions across the city. Click markers for details.
+            {t('home.mapDescription')}
           </p>
-          <Suspense fallback={<div className={styles.mapPlaceholder}>Loading map...</div>}>
+          <Suspense fallback={<div className={styles.mapPlaceholder}>{t('common.loading')}</div>}>
             <CityMap issues={issues} />
           </Suspense>
         </section>

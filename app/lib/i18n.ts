@@ -74,7 +74,7 @@ export const translations = {
     photo_video: "Photo or Video (Optional)",
     upload_text: "Click to upload or drag and drop",
     upload_hint: "PNG, JPG, MP4 up to 10MB",
-    reporter_name_placeholder: "Your Name (optional)",
+    reporter_name_placeholder: "Your Name ",
     submit_report: "Submit Report",
     thank_you: "Thank you for helping improve your city!",
     report_received: "Your report has been received and will be reviewed by our team. We'll update the city dashboard as we gather more information.",

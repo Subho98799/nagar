@@ -79,16 +79,7 @@ export function Header() {
         <div className={styles.userSection}>
           <button
             onClick={toggle}
-            style={{
-              padding: "8px 12px",
-              marginRight: "12px",
-              border: "1px solid #e5e7eb",
-              borderRadius: "6px",
-              background: "white",
-              cursor: "pointer",
-              fontSize: "14px",
-              fontWeight: "500",
-            }}
+            className={styles.languageToggle}
           >
             {lang === "en" ? t(lang, "switch_to_hindi") : t(lang, "switch_to_english")}
           </button>

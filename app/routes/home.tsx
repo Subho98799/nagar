@@ -7,11 +7,14 @@ import { mockIssues } from "~/data/mock-issues";
 import { USE_MOCK } from "~/lib/config";
 import type { Status } from "~/data/mock-issues";
 import { fetchIssues } from "~/lib/api";
+import { useLanguage } from "~/context/LanguageContext";
+import { t } from "~/lib/i18n";
 import styles from "./home.module.css";
 
 const CityMap = lazy(() => import("~/components/city-map").then(m => ({ default: m.CityMap })));
 
 export default function Home() {
+  const { lang } = useLanguage();
   const [statusFilter, setStatusFilter] = useState<Status | "All">("All");
   const [issues, setIssues] = useState<typeof mockIssues>([]);
 
@@ -84,15 +87,18 @@ export default function Home() {
         <CityPulse issues={issues} className={styles.cityPulse} />
 
         <div className={styles.filters}>
-          {(["All", "Active", "Under Review", "Resolved"] as const).map((status) => (
-            <button
-              key={status}
-              className={`${styles.filterButton} ${statusFilter === status ? styles.active : ""}`}
-              onClick={() => setStatusFilter(status)}
-            >
-              {status}
-            </button>
-          ))}
+          {(["All", "Active", "Under Review", "Resolved"] as const).map((status) => {
+            const statusKey = status === "All" ? "all" : status === "Active" ? "active" : status === "Under Review" ? "under_review" : "resolved";
+            return (
+              <button
+                key={status}
+                className={`${styles.filterButton} ${statusFilter === status ? styles.active : ""}`}
+                onClick={() => setStatusFilter(status)}
+              >
+                {t(lang, statusKey as any)}
+              </button>
+            );
+          })}
         </div>
 
         {filteredIssues.length > 0 ? (
@@ -104,17 +110,26 @@ export default function Home() {
         ) : (
           <div className={styles.empty}>
             <CheckCircle className={styles.emptyIcon} />
-            <h3 className={styles.emptyTitle}>No issues found</h3>
-            <p>There are no {statusFilter.toLowerCase()} issues at the moment.</p>
+            <h3 className={styles.emptyTitle}>{t(lang, "no_issues")}</h3>
+            <p>
+              {statusFilter === "All"
+                ? t(lang, "no_issues_filtered").replace("{status}", t(lang, "all"))
+                : t(lang, "no_issues_filtered").replace(
+                    "{status}",
+                    statusFilter === "Active"
+                      ? t(lang, "active")
+                      : statusFilter === "Under Review"
+                      ? t(lang, "under_review")
+                      : t(lang, "resolved")
+                  )}
+            </p>
           </div>
         )}
 
         <section className={styles.mapSection}>
-          <h2 className={styles.sectionTitle}>Live Disruption Map</h2>
-          <p className={styles.sectionDescription}>
-            Interactive view of all active disruptions across the city. Click markers for details.
-          </p>
-          <Suspense fallback={<div className={styles.mapPlaceholder}>Loading map...</div>}>
+          <h2 className={styles.sectionTitle}>{t(lang, "live_disruption_map")}</h2>
+          <p className={styles.sectionDescription}>{t(lang, "interactive_view")}</p>
+          <Suspense fallback={<div className={styles.mapPlaceholder}>{t(lang, "loading_map")}</div>}>
             <CityMap issues={issues} />
           </Suspense>
         </section>

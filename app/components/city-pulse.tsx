@@ -2,6 +2,8 @@ import { useMemo } from "react";
 import styles from "./city-pulse.module.css";
 import { Activity } from "lucide-react";
 import type { Issue } from "~/data/mock-issues";
+import { useLanguage } from "~/context/LanguageContext";
+import { t } from "~/lib/i18n";
 
 interface CityPulseProps {
   issues: Issue[];
@@ -18,6 +20,7 @@ interface PulseData {
 }
 
 export function CityPulse({ issues, className }: CityPulseProps) {
+  const { lang } = useLanguage();
   const pulseData: PulseData = useMemo(() => {
     const activeIssues = issues.filter((issue) => issue.status === "Active");
     const count = activeIssues.length;
@@ -32,8 +35,8 @@ export function CityPulse({ issues, className }: CityPulseProps) {
 
     // Determine city state
     let state: CityState = "calm";
-    let title = "City Operating Normally";
-    let description = "No significant disruptions reported at this time. Systems appear stable across all monitored areas.";
+    let title = t(lang, "city_operating_normally");
+    let description = t(lang, "city_stable");
     let colorClass = styles.calm;
 
     if (count === 0) {
@@ -71,7 +74,7 @@ export function CityPulse({ issues, className }: CityPulseProps) {
           <Activity className={styles.icon} aria-hidden="true" />
         </div>
         <div className={styles.content}>
-          <h2 className={styles.label}>City Pulse</h2>
+          <h2 className={styles.label}>{t(lang, "city_pulse")}</h2>
           <h3 className={styles.title}>{pulseData.title}</h3>
           <p className={styles.description}>{pulseData.description}</p>
         </div>

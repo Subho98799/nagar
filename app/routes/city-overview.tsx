@@ -3,6 +3,8 @@ import { Header } from "~/components/header";
 import { fetchCityPulse, listPulseCities, type CityPulseResponse } from "~/lib/city-pulse";
 import { fetchIssues } from "~/lib/api";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from "recharts";
+import { useLanguage } from "~/context/LanguageContext";
+import { t } from "~/lib/i18n";
 import styles from "./city-overview.module.css";
 
 const COLORS = ["#0ea5e9", "#22c55e", "#f59e0b", "#ef4444", "#8b5cf6", "#14b8a6"];
@@ -10,6 +12,7 @@ const COLORS = ["#0ea5e9", "#22c55e", "#f59e0b", "#ef4444", "#8b5cf6", "#14b8a6"
 type TrendPoint = { bucket: string; count: number };
 
 export default function CityOverview() {
+  const { lang } = useLanguage();
   const [cities, setCities] = useState<string[]>([]);
   const [city, setCity] = useState<string>("Demo City");
   const [pulse, setPulse] = useState<CityPulseResponse | null>(null);
@@ -109,15 +112,13 @@ export default function CityOverview() {
       <main className={styles.container}>
         <header className={styles.top}>
           <div className={styles.titleBlock}>
-            <h1 className={styles.title}>City Overview</h1>
-            <p className={styles.subtitle}>
-              A calm, read-only snapshot of what is currently reported. No voting, no comments, no user interaction signals.
-            </p>
+            <h1 className={styles.title}>{t(lang, "city_overview")}</h1>
+            <p className={styles.subtitle}>{t(lang, "city_overview_subtitle")}</p>
           </div>
 
           <div className={styles.controls}>
             <label className={styles.label}>
-              City
+              {t(lang, "city_label")}
               <select className={styles.select} value={city} onChange={(e) => setCity(e.target.value)}>
                 {cities.map((c) => (
                   <option key={c} value={c}>
@@ -131,18 +132,16 @@ export default function CityOverview() {
 
         <section className={styles.pulseCard}>
           <div className={styles.pulseHeader}>
-            <h2 className={styles.sectionTitle}>City Pulse</h2>
-            {pulse && <div className={styles.meta}>Active reports: {pulse.report_count}</div>}
+            <h2 className={styles.sectionTitle}>{t(lang, "city_pulse_title")}</h2>
+            {pulse && <div className={styles.meta}>{t(lang, "active_reports")} {pulse.report_count}</div>}
           </div>
 
           {loading ? (
-            <div className={styles.loading}>Loading City Pulse…</div>
+            <div className={styles.loading}>{t(lang, "loading_city_pulse")}</div>
           ) : error ? (
             <div className={styles.empty}>
-              <div>No verified city updates available at the moment.</div>
-              <p className={styles.note}>
-                This view updates automatically when new reports are reviewed.
-              </p>
+              <div>{t(lang, "no_verified_updates")}</div>
+              <p className={styles.note}>{t(lang, "auto_updates")}</p>
             </div>
           ) : pulse ? (
             <>
@@ -150,9 +149,9 @@ export default function CityOverview() {
 
               <div className={styles.grid}>
                 <div className={styles.panel}>
-                  <h3 className={styles.panelTitle}>Issue categories (active)</h3>
+                  <h3 className={styles.panelTitle}>{t(lang, "issue_categories")}</h3>
                   {issueDist.length === 0 ? (
-                    <div className={styles.empty}>No active issues.</div>
+                    <div className={styles.empty}>{t(lang, "no_active_issues")}</div>
                   ) : (
                     <ResponsiveContainer width="100%" height={220}>
                       <PieChart>
@@ -168,9 +167,9 @@ export default function CityOverview() {
                 </div>
 
                 <div className={styles.panel}>
-                  <h3 className={styles.panelTitle}>Confidence breakdown</h3>
+                  <h3 className={styles.panelTitle}>{t(lang, "confidence_breakdown")}</h3>
                   {confidenceDist.length === 0 ? (
-                    <div className={styles.empty}>No data.</div>
+                    <div className={styles.empty}>{t(lang, "no_data")}</div>
                   ) : (
                     <ResponsiveContainer width="100%" height={220}>
                       <BarChart data={confidenceDist}>
@@ -184,9 +183,9 @@ export default function CityOverview() {
                 </div>
 
                 <div className={styles.panel}>
-                  <h3 className={styles.panelTitle}>Most affected localities</h3>
+                  <h3 className={styles.panelTitle}>{t(lang, "most_affected_localities")}</h3>
                   {pulse.affected_localities.length === 0 ? (
-                    <div className={styles.empty}>No localities reported.</div>
+                    <div className={styles.empty}>{t(lang, "no_localities")}</div>
                   ) : (
                     <ul className={styles.list}>
                       {pulse.affected_localities.slice(0, 10).map((l) => (
@@ -199,9 +198,9 @@ export default function CityOverview() {
                 </div>
 
                 <div className={styles.panel}>
-                  <h3 className={styles.panelTitle}>Last 12 hours (reported items)</h3>
+                  <h3 className={styles.panelTitle}>{t(lang, "last_12_hours")}</h3>
                   {trend.length === 0 ? (
-                    <div className={styles.empty}>No trend data.</div>
+                    <div className={styles.empty}>{t(lang, "no_trend_data")}</div>
                   ) : (
                     <ResponsiveContainer width="100%" height={220}>
                       <BarChart data={trend}>
@@ -212,7 +211,7 @@ export default function CityOverview() {
                       </BarChart>
                     </ResponsiveContainer>
                   )}
-                  <p className={styles.note}>Observational only. No prediction or recommendation.</p>
+                  <p className={styles.note}>{t(lang, "observational_only")}</p>
                 </div>
               </div>
             </>
@@ -221,18 +220,16 @@ export default function CityOverview() {
 
         <section className={styles.whatsappCard}>
           <div className={styles.pulseHeader}>
-            <h2 className={styles.sectionTitle}>WhatsApp-first (SIMULATED)</h2>
-            <div className={styles.badge}>SIMULATED • No messages are sent</div>
+            <h2 className={styles.sectionTitle}>{t(lang, "whatsapp_simulated")}</h2>
+            <div className={styles.badge}>{t(lang, "simulated_badge")}</div>
           </div>
-          <p className={styles.note}>
-            This prototype shows message formats to demonstrate feasibility. There are no live integrations, credentials, or side effects.
-          </p>
+          <p className={styles.note}>{t(lang, "whatsapp_note")}</p>
 
           <div className={styles.whatsappGrid}>
             <div className={styles.panel}>
-              <h3 className={styles.panelTitle}>Sample inbound report (citizen → system)</h3>
+              <h3 className={styles.panelTitle}>{t(lang, "sample_inbound")}</h3>
               <div className={styles.message}>
-                <div className={styles.messageMeta}>WhatsApp • Incoming</div>
+                <div className={styles.messageMeta}>{t(lang, "whatsapp_incoming")}</div>
                 <pre className={styles.messageBody}>
 {`Report: Traffic jam near Main Chowk
 City: ${city}
@@ -244,9 +241,9 @@ Notes: Heavy congestion, slow moving for ~20 minutes`}
             </div>
 
             <div className={styles.panel}>
-              <h3 className={styles.panelTitle}>Sample outgoing alert (system → citizens)</h3>
+              <h3 className={styles.panelTitle}>{t(lang, "sample_outgoing")}</h3>
               <div className={styles.message}>
-                <div className={styles.messageMeta}>WhatsApp • Outgoing (preview)</div>
+                <div className={styles.messageMeta}>{t(lang, "whatsapp_outgoing")}</div>
                 <pre className={styles.messageBody}>
 {`⚠️ Traffic disruption near Main Chowk (${city}).
 Avoid NH‑44 between 5–7 PM if possible.
@@ -255,7 +252,7 @@ Source: Citizen reports (advisory intelligence)`}
                 </pre>
               </div>
               <div className={styles.disclaimer}>
-                This is a calm advisory preview. No automated alerts are triggered by this UI.
+                {t(lang, "calm_advisory")}
               </div>
             </div>
           </div>

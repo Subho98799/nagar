@@ -10,6 +10,8 @@ import { USE_MOCK } from "~/lib/config";
 import { fetchIssues } from "~/lib/api";
 import type { Issue, Confidence, Status } from "~/data/mock-issues";
 import { toast } from "~/hooks/use-toast";
+import { useLanguage } from "~/context/LanguageContext";
+import { t } from "~/lib/i18n";
 import styles from "./admin.module.css";
 
 const severityVariant = {
@@ -19,6 +21,7 @@ const severityVariant = {
 };
 
 export default function Admin() {
+  const { lang } = useLanguage();
   const [issues, setIssues] = useState<Issue[]>(mockIssues);
 
   useEffect(() => {
@@ -90,8 +93,8 @@ export default function Admin() {
 
   const handleSave = (issueId: string) => {
     toast({
-      title: "Changes saved",
-      description: "Issue has been updated successfully.",
+      title: t(lang, "changes_saved"),
+      description: t(lang, "issue_updated"),
     });
   };
 
@@ -102,12 +105,12 @@ export default function Admin() {
         <div className={styles.header}>
           <h1 className={styles.title}>
             <Shield className={styles.titleIcon} />
-            Operator Console
+            {t(lang, "operator_console")}
           </h1>
-          <p className={styles.subtitle}>Human-in-the-loop oversight for safety and governance</p>
+          <p className={styles.subtitle}>{t(lang, "human_oversight")}</p>
           <div className={styles.badge}>
             <User className={styles.badgeIcon} />
-            Human Oversight Active
+            {t(lang, "human_oversight_active")}
           </div>
         </div>
 
@@ -127,7 +130,7 @@ export default function Admin() {
 
               <div className={styles.controls}>
                 <div className={styles.controlGroup}>
-                  <label className={styles.controlLabel}>Confidence Level</label>
+                  <label className={styles.controlLabel}>{t(lang, "confidence_level")}</label>
                   <Select
                     value={issue.confidence}
                     onValueChange={(value) => handleConfidenceChange(issue.id, value as Confidence)}
@@ -136,38 +139,38 @@ export default function Admin() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Low">Low</SelectItem>
-                      <SelectItem value="Medium">Medium</SelectItem>
-                      <SelectItem value="High">High</SelectItem>
+                      <SelectItem value="Low">{t(lang, "confidence_low")}</SelectItem>
+                      <SelectItem value="Medium">{t(lang, "confidence_medium")}</SelectItem>
+                      <SelectItem value="High">{t(lang, "confidence_high")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className={styles.controlGroup}>
-                  <label className={styles.controlLabel}>Status</label>
+                  <label className={styles.controlLabel}>{t(lang, "status_label")}</label>
                   <Select value={issue.status} onValueChange={(value) => handleStatusChange(issue.id, value as Status)}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Under Review">Under Review</SelectItem>
-                      <SelectItem value="Active">Active</SelectItem>
-                      <SelectItem value="Resolved">Resolved</SelectItem>
+                      <SelectItem value="Under Review">{t(lang, "under_review")}</SelectItem>
+                      <SelectItem value="Active">{t(lang, "active")}</SelectItem>
+                      <SelectItem value="Resolved">{t(lang, "resolved")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
 
               <div className={styles.notesSection}>
-                <label className={styles.notesLabel}>Internal Notes</label>
+                <label className={styles.notesLabel}>{t(lang, "internal_notes")}</label>
                 <Textarea
-                  placeholder="Add operator notes for internal reference..."
+                  placeholder={t(lang, "notes_placeholder")}
                   rows={3}
                   value={issue.operatorNotes || ""}
                   onChange={(e) => handleNotesChange(issue.id, e.target.value)}
                 />
                 <Button className={styles.saveButton} onClick={() => handleSave(issue.id)}>
-                  Save Changes
+                  {t(lang, "save_changes")}
                 </Button>
               </div>
             </div>

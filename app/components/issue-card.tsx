@@ -2,6 +2,8 @@ import { MapPin, Clock, Users, AlertCircle, CheckCircle2, HelpCircle } from "luc
 import { Link } from "react-router";
 import type { Issue } from "~/data/mock-issues";
 import { Badge } from "~/components/ui/badge/badge";
+import { useLanguage } from "~/context/LanguageContext";
+import { t, translations } from "~/lib/i18n";
 import styles from "./issue-card.module.css";
 
 interface IssueCardProps {
@@ -13,10 +15,30 @@ interface IssueCardProps {
   className?: string;
 }
 
-const severityConfig = {
-  Low: { label: "Low Impact", className: "severityLow" },
-  Medium: { label: "Medium Impact", className: "severityMedium" },
-  High: { label: "High Impact", className: "severityHigh" },
+const getSeverityConfig = (lang: "en" | "hi") => ({
+  Low: { label: t(lang, "low_impact"), className: "severityLow" },
+  Medium: { label: t(lang, "medium_impact"), className: "severityMedium" },
+  High: { label: t(lang, "high_impact"), className: "severityHigh" },
+});
+
+const getIssueTypeLabel = (lang: "en" | "hi", type: string): string => {
+  const typeMap: Record<string, string> = {
+    Traffic: "issue_type_traffic",
+    Power: "issue_type_power",
+    Water: "issue_type_water",
+    Roadblock: "issue_type_roadblock",
+    Safety: "issue_type_safety",
+    Other: "issue_type_other",
+  };
+  const key = typeMap[type];
+  if (key) {
+    try {
+      return t(lang, key as any);
+    } catch {
+      return type;
+    }
+  }
+  return type;
 };
 
 const confidenceConfig = {
@@ -29,6 +51,8 @@ const confidenceConfig = {
  * Card component displaying issue summary
  */
 export function IssueCard({ issue, className }: IssueCardProps) {
+  const { lang } = useLanguage();
+  const severityConfig = getSeverityConfig(lang);
   const timeAgo = new Date(issue.timestamp).toLocaleTimeString("en-US", {
     hour: "2-digit",
     minute: "2-digit",
@@ -44,7 +68,7 @@ export function IssueCard({ issue, className }: IssueCardProps) {
             <span>{issue.location}</span>
           </div>
         </div>
-        <Badge variant="outline">{issue.type}</Badge>
+        <Badge variant="outline">{getIssueTypeLabel(lang, issue.type)}</Badge>
       </div>
 
       <p className={styles.description}>{issue.description}</p>
@@ -57,7 +81,7 @@ export function IssueCard({ issue, className }: IssueCardProps) {
           </div>
           <div className={styles.metaItem}>
             <Users className={styles.metaIcon} />
-            <span>{issue.reportCount} reports</span>
+            <span>{issue.reportCount} {t(lang, "reports")}</span>
           </div>
           <div className={`${styles.metaItem} ${styles[severityConfig[issue.severity].className]}`}>
             <AlertCircle className={styles.metaIcon} />
@@ -69,7 +93,7 @@ export function IssueCard({ issue, className }: IssueCardProps) {
             const Icon = confidenceConfig[issue.confidence].icon;
             return <Icon className={styles.confidenceIcon} />;
           })()}
-          <span>{issue.confidence} Confidence</span>
+          <span>{issue.confidence} {t(lang, "confidence")}</span>
         </div>
       </div>
     </Link>

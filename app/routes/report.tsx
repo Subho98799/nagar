@@ -7,9 +7,12 @@ import { Input } from "~/components/ui/input/input";
 import { Textarea } from "~/components/ui/textarea/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select/select";
 import type { IssueType } from "~/data/mock-issues";
+import { useLanguage } from "~/context/LanguageContext";
+import { t } from "~/lib/i18n";
 import styles from "./report.module.css";
 
 export default function Report() {
+  const { lang } = useLanguage();
   const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState({
     type: "" as IssueType | "",
@@ -193,12 +196,9 @@ export default function Report() {
           <div className={styles.card}>
             <div className={styles.successMessage}>
               <CheckCircle className={styles.successIcon} />
-              <h2 className={styles.successTitle}>Thank you for helping improve your city!</h2>
-              <p className={styles.successText}>
-                Your report has been received and will be reviewed by our team. We'll update the city dashboard as we
-                gather more information.
-              </p>
-              <Button onClick={() => setSubmitted(false)}>Submit Another Report</Button>
+              <h2 className={styles.successTitle}>{t(lang, "thank_you")}</h2>
+              <p className={styles.successText}>{t(lang, "report_received")}</p>
+              <Button onClick={() => setSubmitted(false)}>{t(lang, "submit_another")}</Button>
             </div>
           </div>
         </main>
@@ -211,47 +211,44 @@ export default function Report() {
       <Header />
       <main className={styles.container}>
         <div className={styles.header}>
-          <h1 className={styles.title}>Report an Issue</h1>
-          <p className={styles.subtitle}>
-            Help your community by sharing what you're observing. Your report will be reviewed and contribute to our
-            shared city understanding.
-          </p>
+          <h1 className={styles.title}>{t(lang, "report_issue")}</h1>
+          <p className={styles.subtitle}>{t(lang, "report_subtitle")}</p>
         </div>
 
         <div className={styles.card}>
           <form className={styles.form} onSubmit={handleSubmit}>
             <div className={styles.field}>
               <label className={styles.label}>
-                What type of issue are you reporting? <span className={styles.required}>*</span>
+                {t(lang, "issue_type_label")} <span className={styles.required}>*</span>
               </label>
               <Select
                 value={formData.type}
                 onValueChange={(value) => setFormData({ ...formData, type: value as IssueType })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select issue type" />
+                  <SelectValue placeholder={t(lang, "issue_type_placeholder")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Traffic">Traffic</SelectItem>
-                  <SelectItem value="Power">Power Outage</SelectItem>
-                  <SelectItem value="Water">Water Supply</SelectItem>
-                  <SelectItem value="Roadblock">Road Closure / Roadblock</SelectItem>
-                  <SelectItem value="Safety">Safety Concern</SelectItem>
-                  <SelectItem value="Other">Other</SelectItem>
+                  <SelectItem value="Traffic">{t(lang, "issue_type_traffic")}</SelectItem>
+                  <SelectItem value="Power">{t(lang, "issue_type_power")}</SelectItem>
+                  <SelectItem value="Water">{t(lang, "issue_type_water")}</SelectItem>
+                  <SelectItem value="Roadblock">{t(lang, "issue_type_roadblock")}</SelectItem>
+                  <SelectItem value="Safety">{t(lang, "issue_type_safety")}</SelectItem>
+                  <SelectItem value="Other">{t(lang, "issue_type_other")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className={styles.field}>
               <label className={styles.label} htmlFor="location">
-                Where is this happening? <span className={styles.required}>*</span>
+                {t(lang, "location_label")} <span className={styles.required}>*</span>
               </label>
 
               <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
                 <Input
                   id="location"
                   type="text"
-                  placeholder="e.g., Main Chowk, Station Road"
+                  placeholder={t(lang, "location_placeholder")}
                   value={formData.location}
                   onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                   required
@@ -262,56 +259,49 @@ export default function Report() {
                   type="button"
                   className={styles.locationButton}
                   onClick={handleUseCurrentLocation}
-                  title="Use my current location"
+                  title={t(lang, "use_current_location")}
                   style={{ padding: "8px 10px" }}
                 >
-                  📍 Use my current location
+                  {t(lang, "use_current_location")}
                 </button>
               </div>
 
-              <span className={styles.helpText}>Provide a landmark or street name that others will recognize</span>
+              <span className={styles.helpText}>{t(lang, "location_help")}</span>
               {resolvedAddress && locationSource === "frontend-geocoded" && (
                 <div style={{ marginTop: 6 }} className={styles.helpText}>
-                  <small>Address auto-detected from location. You can edit if needed.</small>
-                </div>
-              )}
-              {!resolvedAddress && (
-                <div style={{ marginTop: 6 }} className={styles.helpText}>
-                  <small>Location is used only for this report.</small>
+                  <small>{t(lang, "address_auto_detected")}</small>
                 </div>
               )}
 
               {showTempMarker && coords.latitude && coords.longitude && (
                 <div className={styles.tempMarker}>
-                  <strong>Location captured:</strong> {coords.latitude.toFixed(5)}, {coords.longitude.toFixed(5)}
+                  <strong>{t(lang, "location_captured")}</strong> {coords.latitude.toFixed(5)}, {coords.longitude.toFixed(5)}
                 </div>
               )}
             </div>
 
             <div className={styles.field}>
               <label className={styles.label} htmlFor="description">
-                What are you observing? <span className={styles.required}>*</span>
+                {t(lang, "description_label")} <span className={styles.required}>*</span>
               </label>
               <Textarea
                 id="description"
-                placeholder="Describe what you're seeing or experiencing..."
+                placeholder={t(lang, "description_placeholder")}
                 rows={5}
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 required
               />
-              <span className={styles.helpText}>
-                Be specific but concise. This helps others understand the situation.
-              </span>
+              <span className={styles.helpText}>{t(lang, "description_help")}</span>
             </div>
 
             <div className={styles.field}>
-              <label className={styles.label}>Photo or Video (Optional)</label>
+              <label className={styles.label}>{t(lang, "photo_video")}</label>
               <div className={styles.fileInput}>
                 <label className={styles.fileInputLabel}>
                   <Upload className={styles.uploadIcon} />
-                  <span className={styles.fileInputText}>Click to upload or drag and drop</span>
-                  <span className={styles.fileInputHint}>PNG, JPG, MP4 up to 10MB</span>
+                  <span className={styles.fileInputText}>{t(lang, "upload_text")}</span>
+                  <span className={styles.fileInputHint}>{t(lang, "upload_hint")}</span>
                   <input type="file" accept="image/*,video/*" style={{ display: "none" }} />
                 </label>
               </div>
@@ -322,13 +312,13 @@ export default function Report() {
                 <Input
                   id="reporter_name"
                   type="text"
-                  placeholder="Your Name (optional)"
+                  placeholder={t(lang, "reporter_name_placeholder")}
                   value={reporterName}
                   onChange={(e) => setReporterName(e.target.value)}
                   style={{ flex: 1 }}
                 />
                 <Button type="submit" size="lg" style={{ flex: 1 }}>
-                  Submit Report
+                  {t(lang, "submit_report")}
                 </Button>
               </div>
             </div>

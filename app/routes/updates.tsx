@@ -1,87 +1,86 @@
 import { MessageSquare } from "lucide-react";
 import { Header } from "~/components/header";
+import { useLanguage } from "~/context/LanguageContext";
+import { t } from "~/lib/i18n";
 import styles from "./updates.module.css";
 
 export default function Updates() {
+  const { lang } = useLanguage();
   return (
     <div className={styles.page}>
       <Header />
       <main className={styles.container}>
         <div className={styles.header}>
-          <h1 className={styles.title}>Curated Updates</h1>
-          <p className={styles.subtitle}>
-            Preview of how calm, responsible updates would be shared with citizens via WhatsApp
-          </p>
+          <h1 className={styles.title}>{t(lang, "curated_updates")}</h1>
+          <p className={styles.subtitle}>{t(lang, "updates_subtitle")}</p>
         </div>
 
         <div className={styles.previewCard}>
           <div className={styles.previewHeader}>
             <MessageSquare className={styles.whatsappIcon} />
-            <h2 className={styles.previewTitle}>WhatsApp Message Preview</h2>
+            <h2 className={styles.previewTitle}>{t(lang, "whatsapp_preview")}</h2>
           </div>
 
           <div className={styles.messages}>
             <div className={styles.message}>
               <div className={styles.messageHeader}>
-                <span className={styles.messageSender}>Nagar Alert Hub</span>
+                <span className={styles.messageSender}>{t(lang, "whatsapp_sender")}</span>
                 <span className={styles.messageTime}>10:30 AM</span>
               </div>
               <p className={styles.messageText}>
-                🚦 <strong>Traffic Update</strong>
+                🚦 <strong>{t(lang, "traffic_update")}</strong>
                 <br />
                 <br />
-                Traffic congestion reported near Main Chowk, Station Road. Consider using alternate routes if traveling
-                in that area.
+                {t(lang, "traffic_congestion_reported")}
                 <br />
                 <br />
-                Based on 12 citizen reports. Last updated: 11:30 AM
+                {t(lang, "based_on_reports").replace("{count}", "12").replace("{time}", "11:30 AM")}
               </p>
             </div>
 
             <div className={styles.message}>
               <div className={styles.messageHeader}>
-                <span className={styles.messageSender}>Nagar Alert Hub</span>
+                <span className={styles.messageSender}>{t(lang, "whatsapp_sender")}</span>
                 <span className={styles.messageTime}>9:45 AM</span>
               </div>
               <p className={styles.messageText}>
-                ⚡ <strong>Power Update</strong>
+                ⚡ <strong>{t(lang, "power_update")}</strong>
                 <br />
                 <br />
-                Power outage affecting Sector 7 residential area. Approximately 200 households impacted. Restoration
-                work is underway.
+                {t(lang, "power_outage_affecting")}
                 <br />
                 <br />
-                We'll keep you informed as the situation develops.
+                {t(lang, "will_keep_informed")}
               </p>
             </div>
 
             <div className={styles.message}>
               <div className={styles.messageHeader}>
-                <span className={styles.messageSender}>Nagar Alert Hub</span>
-                <span className={styles.messageTime}>Yesterday</span>
+                <span className={styles.messageSender}>{t(lang, "whatsapp_sender")}</span>
+                <span className={styles.messageTime}>{t(lang, "yesterday")}</span>
               </div>
               <p className={styles.messageText}>
-                ✅ <strong>Resolved</strong>
+                ✅ <strong>{t(lang, "resolved")}</strong>
                 <br />
                 <br />
-                Railway Crossing road closure has been cleared. Traffic is flowing normally on NH-44.
+                {t(lang, "railway_crossing_cleared")}
                 <br />
                 <br />
-                Thank you for your patience.
+                {t(lang, "thank_you_patience")}
               </p>
             </div>
           </div>
         </div>
 
         <div className={styles.infoCard}>
-          <h3 className={styles.infoTitle}>Communication Principles</h3>
+          <h3 className={styles.infoTitle}>{t(lang, "communication_principles")}</h3>
           <ul className={styles.infoList}>
-            <li>Calm, measured language without alarmist phrasing</li>
-            <li>Clear indication of information source (citizen reports)</li>
-            <li>Transparent about confidence levels and uncertainty</li>
-            <li>Actionable guidance when appropriate</li>
-            <li>Regular updates as situations evolve</li>
-            <li>Positive confirmation when issues are resolved</li>
+            <li>{t(lang, "principle_1")}</li>
+            <li>{t(lang, "principle_2")}</li>
+            <li>{t(lang, "principle_3")}</li>
+            <li>{t(lang, "principle_4")}</li>
+            <li>{t(lang, "principle_5")}</li>
+            <li>{t(lang, "principle_6")}</li>
           </ul>
         </div>
       </main>

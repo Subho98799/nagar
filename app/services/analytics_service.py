@@ -5,6 +5,7 @@ Analytics Service - Generate analytics data for issues (charts, heatmaps, etc.).
 from firebase_admin import firestore
 from app.config.firebase import get_db
 from app.models.timeline import IssueAnalytics, SourceInfo
+from app.utils.firestore_helpers import where_filter
 from typing import Dict, List, Optional
 from datetime import datetime, timedelta
 from collections import defaultdict
@@ -87,7 +88,7 @@ class AnalyticsService:
             
             # Get reports from same locality within 7 days
             reports_ref = self.db.collection("reports")
-            query = reports_ref.where("locality", "==", locality)
+            query = where_filter(reports_ref, "locality", "==", locality)
             
             related = [report]
             for doc in query.stream():
@@ -217,7 +218,8 @@ class AnalyticsService:
         """Get upvote count."""
         try:
             votes_ref = self.db.collection("votes")
-            query = votes_ref.where("issue_id", "==", issue_id).where("vote_type", "==", "upvote")
+            query = where_filter(votes_ref, "issue_id", "==", issue_id)
+            query = where_filter(query, "vote_type", "==", "upvote")
             return len(list(query.stream()))
         except:
             return 0
@@ -226,7 +228,8 @@ class AnalyticsService:
         """Get downvote count."""
         try:
             votes_ref = self.db.collection("votes")
-            query = votes_ref.where("issue_id", "==", issue_id).where("vote_type", "==", "downvote")
+            query = where_filter(votes_ref, "issue_id", "==", issue_id)
+            query = where_filter(query, "vote_type", "==", "downvote")
             return len(list(query.stream()))
         except:
             return 0
@@ -246,7 +249,7 @@ class AnalyticsService:
         """Get comment count."""
         try:
             comments_ref = self.db.collection("comments")
-            query = comments_ref.where("issue_id", "==", issue_id)
+            query = where_filter(comments_ref, "issue_id", "==", issue_id)
             return len(list(query.stream()))
         except:
             return 0

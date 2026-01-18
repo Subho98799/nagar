@@ -82,17 +82,17 @@ def normalize_city_name(city: Optional[str]) -> str:
     
     Normalizes city names to a consistent format:
     - Trims whitespace
-    - Handles case variations
+    - Converts to lowercase for consistent matching
     - Returns "UNKNOWN" for invalid values
     
-    This function ensures BOTH reports and issues use the SAME normalized city value
-    for aggregation matching.
+    CRITICAL: This function ensures BOTH reports and issues use the SAME normalized city value
+    for aggregation matching. Lowercase ensures "Demo City" and "demo city" match.
     
     Args:
         city: City name (may be None, empty, or invalid)
     
     Returns:
-        Normalized city name or "UNKNOWN"
+        Normalized city name (lowercase) or "UNKNOWN"
     """
     if not city or not isinstance(city, str):
         return "UNKNOWN"
@@ -103,11 +103,15 @@ def normalize_city_name(city: Optional[str]) -> str:
     
     # Normalize common variations (e.g., "India" should not be a city)
     # Filter out country names and invalid values
-    invalid_cities = {"india", "demo city", "test city", ""}
-    if normalized.lower() in invalid_cities:
+    # NOTE: "Demo City" is a valid demo city name, do NOT filter it
+    invalid_cities = {"india", "test city", ""}
+    normalized_lower = normalized.lower()
+    if normalized_lower in invalid_cities:
         return "UNKNOWN"
     
-    return normalized
+    # CRITICAL: Return lowercase for consistent matching
+    # This ensures "Demo City" and "demo city" are treated as the same
+    return normalized_lower
 
 
 def ensure_city_not_null(

@@ -23,6 +23,7 @@ WHAT CITY PULSE DOES NOT DO:
 
 from firebase_admin import firestore
 from app.config.firebase import get_db
+from app.utils.firestore_helpers import where_filter
 from app.services.ai_interpreter import get_ai_interpreter
 from typing import Dict, List, Optional
 from collections import defaultdict
@@ -110,29 +111,36 @@ class CityPulseService:
         (RESOLVED reports are excluded - they're no longer active)
         
         Args:
-            city: City name to filter by
+            city: City name to filter by (should be normalized, lowercase)
         
         Returns:
             List of active report dictionaries
         """
         reports = []
         
-        # Query reports for this city with active statuses
-        # Firestore limitation: we can only filter by one field with 'in'
-        # So we'll filter status in Python for simplicity
-        reports_ref = self.db.collection("reports")
-        query = reports_ref.where("city", "==", city)
-        
-        docs = query.stream()
-        
-        for doc in docs:
-            data = doc.to_dict()
-            data["id"] = doc.id
+        try:
+            # Query reports for this city with active statuses
+            # Firestore limitation: we can only filter by one field with 'in'
+            # So we'll filter status in Python for simplicity
+            reports_ref = self.db.collection("reports")
+            query = where_filter(reports_ref, "city", "==", city)
             
-            # Filter by active status
-            status = data.get("status", "UNDER_OBSERVATION")
-            if status in self.ACTIVE_STATUSES:
-                reports.append(data)
+            docs = query.stream()
+            
+            for doc in docs:
+                data = doc.to_dict()
+                if data is None:
+                    continue
+                data["id"] = doc.id
+                
+                # Filter by active status
+                status = data.get("status", "UNDER_OBSERVATION")
+                if status in self.ACTIVE_STATUSES:
+                    reports.append(data)
+        except Exception as e:
+            logger.error(f"Error fetching active reports for city '{city}': {e}", exc_info=True)
+            # Return empty list on error rather than crashing
+            return []
         
         logger.info(f"Found {len(reports)} active reports for {city}")
         

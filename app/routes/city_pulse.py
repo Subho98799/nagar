@@ -133,14 +133,31 @@ async def get_city_pulse(
         GET /city-pulse?city=Ranchi
     """
     try:
+        # Normalize city name to match stored values in Firestore
+        from app.utils.geocoding import normalize_city_name
+        normalized_city = normalize_city_name(city)
+        
+        if normalized_city == "UNKNOWN":
+            # Return empty pulse for unknown cities
+            pulse_service = get_city_pulse_service()
+            return CityPulseResponse(
+                city=city,
+                report_count=0,
+                active_issues={},
+                confidence_breakdown={},
+                affected_localities=[],
+                summary=f"No active reports found for {city}."
+            )
+        
         # Get the city pulse service
         pulse_service = get_city_pulse_service()
         
-        # Generate city pulse
-        pulse_data = pulse_service.get_city_pulse(city)
+        # Generate city pulse with normalized city name
+        pulse_data = pulse_service.get_city_pulse(normalized_city)
         
+        # Use original city name for response (not normalized)
         return CityPulseResponse(
-            city=pulse_data["city"],
+            city=city,  # Use original city name for display
             report_count=pulse_data["report_count"],
             active_issues=pulse_data["active_issues"],
             confidence_breakdown=pulse_data["confidence_breakdown"],

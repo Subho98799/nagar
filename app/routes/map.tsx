@@ -7,7 +7,7 @@ import styles from "./map.module.css";
 const CityMap = lazy(() => import("~/components/city-map").then(m => ({ default: m.CityMap })));
 
 export default function MapPage() {
-  const [issues, setIssues] = useState<typeof mockIssues>(mockIssues);
+  const [issues, setIssues] = useState<typeof mockIssues>([]);
 
   useEffect(() => {
     let mounted = true;
@@ -44,6 +44,9 @@ export default function MapPage() {
             status: s.status === "CONFIRMED" ? "Active" : s.status === "RESOLVED" ? "Resolved" : "Under Review",
             timestamp: timestamp,
             reportCount: s.report_count || 1,
+            // CRITICAL FIX: Include actual coordinates from server
+            latitude: s.latitude !== undefined ? Number(s.latitude) : undefined,
+            longitude: s.longitude !== undefined ? Number(s.longitude) : undefined,
             timeline: [
               {
                 id: `${s.id}-t1`,
@@ -59,10 +62,14 @@ export default function MapPage() {
 
         if (mounted) setIssues(mapped as any);
       } catch (e) {
-        if (mounted) setIssues(mockIssues);
+        // Do not fallback to mock - show empty state
+        console.error("Error mapping issues:", e);
+        if (mounted) setIssues([] as any);
       }
-    }).catch(() => {
-      if (mounted) setIssues(mockIssues);
+    }).catch((err) => {
+      // Do not fallback to mock - show empty state
+      console.error("fetchIssues failed:", err);
+      if (mounted) setIssues([] as any);
     });
 
     return () => {

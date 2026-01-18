@@ -25,6 +25,8 @@ class Settings(BaseSettings):
     # Firebase/Firestore
     FIREBASE_PROJECT_ID: Optional[str] = None
     FIREBASE_CREDENTIALS_PATH: Optional[str] = None  # Path to service account JSON
+    FIREBASE_STORAGE_BUCKET: Optional[str] = None
+    
     # Mock DB mode for local development without Firebase credentials
     USE_MOCK_DB: bool = False
     MOCK_DB_PATH: str = "./mock_db.json"
@@ -45,6 +47,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = True
+        extra = "allow"  # Allow extra env vars to prevent crashes (e.g., FIREBASE_STORAGE_BUCKET)
 
 
 # Global settings instance

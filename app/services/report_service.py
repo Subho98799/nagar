@@ -23,8 +23,17 @@ from app.services.status_workflow import ReportStatus, StatusWorkflowEngine
 # ------------------------------------------------------------------
 
 def create_report_sync(report_data: ReportCreate) -> dict:
+    """
+    Synchronously create a report in Firestore.
+    
+    This is the core write operation - it MUST succeed before any async processing.
+    """
+    import logging
+    logger = logging.getLogger(__name__)
+    
     db = get_db()
     if db is None:
+        logger.error("❌ Firestore DB not initialized in create_report_sync")
         raise RuntimeError("Firestore DB not initialized")
 
     doc_ref = db.collection("reports").document()
@@ -39,6 +48,8 @@ def create_report_sync(report_data: ReportCreate) -> dict:
         longitude=report_data.longitude,
         resolved_city=getattr(report_data, 'resolved_city', None),
     )
+    
+    logger.info(f"📝 Creating report {report_id} with normalized city: {city}")
 
     workflow = StatusWorkflowEngine()
     initial_status = ReportStatus.UNDER_REVIEW.value
@@ -80,10 +91,22 @@ def create_report_sync(report_data: ReportCreate) -> dict:
         "created_at": created_at,
     }
 
-    doc_ref.set(payload)
+    try:
+        doc_ref.set(payload)
+        logger.info(f"✅ Report {report_id} written to Firestore")
+    except Exception as e:
+        logger.error(f"❌ Failed to write report {report_id} to Firestore: {e}", exc_info=True)
+        raise RuntimeError(f"Firestore write failed: {str(e)}")
 
-    if not doc_ref.get().exists:
-        raise RuntimeError("Firestore write verification failed")
+    # Verify the write succeeded
+    try:
+        if not doc_ref.get().exists:
+            logger.error(f"❌ Report {report_id} write verification failed - document does not exist")
+            raise RuntimeError("Firestore write verification failed - document does not exist")
+        logger.info(f"✅ Report {report_id} write verified")
+    except Exception as e:
+        logger.error(f"❌ Failed to verify report {report_id} write: {e}", exc_info=True)
+        raise
 
     return payload
 

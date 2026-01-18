@@ -6,6 +6,7 @@ from firebase_admin import firestore
 from app.config.firebase import get_db
 from app.models.timeline import CommentResponse
 from app.services.user_service import get_user_service
+from app.utils.firestore_helpers import where_filter
 from typing import List, Dict, Optional
 import logging
 
@@ -74,7 +75,8 @@ class CommentService:
         """
         try:
             comments_ref = self.db.collection("comments")
-            query = comments_ref.where("issue_id", "==", issue_id).order_by("created_at", direction=firestore.Query.DESCENDING)
+            query = where_filter(comments_ref, "issue_id", "==", issue_id)
+            query = query.order_by("created_at", direction=firestore.Query.DESCENDING)
             
             comments = []
             for doc in query.stream():

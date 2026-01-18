@@ -47,15 +47,11 @@ export type ServerIssue = {
 };
 
 async function fetchJSON(url: string) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 5000);
-  try {
-    const res = await fetch(url, { signal: controller.signal });
-    if (!res.ok) throw new Error(`API error ${res.status}`);
-    return res.json();
-  } finally {
-    clearTimeout(timeout);
-  }
+  // CRITICAL: No AbortController - fetch must complete naturally
+  // AbortController was causing AbortError and breaking dashboard fetch
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`API error ${res.status}`);
+  return res.json();
 }
 
 export async function fetchIssues(city = "Demo City") {

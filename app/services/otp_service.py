@@ -4,6 +4,7 @@ OTP Service - Generate, store, and verify OTPs for phone authentication.
 
 from firebase_admin import firestore
 from app.config.firebase import get_db
+from app.utils.firestore_helpers import where_filter
 from datetime import datetime, timedelta
 from typing import Optional, Dict
 import random
@@ -130,7 +131,8 @@ class OTPService:
             
             # Find unexpired, unverified OTP for this phone number
             otps_ref = self.db.collection("otps")
-            query = otps_ref.where("phone_number", "==", normalized_phone).where("verified", "==", False)
+            query = where_filter(otps_ref, "phone_number", "==", normalized_phone)
+            query = where_filter(query, "verified", "==", False)
             
             otp_found = False
             otp_doc = None
@@ -198,7 +200,8 @@ class OTPService:
         """Mark all other OTPs for this phone number as invalid."""
         try:
             otps_ref = self.db.collection("otps")
-            query = otps_ref.where("phone_number", "==", phone_number).where("verified", "==", False)
+            query = where_filter(otps_ref, "phone_number", "==", phone_number)
+            query = where_filter(query, "verified", "==", False)
             
             for doc in query.stream():
                 if doc.id != current_otp_id:

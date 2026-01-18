@@ -10,6 +10,7 @@ DESIGN PRINCIPLES:
 
 from firebase_admin import firestore
 from app.config.firebase import get_db
+from app.utils.firestore_helpers import where_filter
 from app.services.status_workflow import StatusWorkflowEngine, ReportStatus
 from typing import List, Dict, Optional
 from datetime import datetime
@@ -57,13 +58,13 @@ class ReviewerService:
         
         # Apply filters that Firestore supports efficiently
         if city:
-            query = query.where("city", "==", city)
+            query = where_filter(query, "city", "==", city)
         
         if status:
-            query = query.where("status", "==", status)
+            query = where_filter(query, "status", "==", status)
         
         if confidence:
-            query = query.where("confidence", "==", confidence)
+            query = where_filter(query, "confidence", "==", confidence)
         
         # Execute query
         docs = query.limit(limit).stream()

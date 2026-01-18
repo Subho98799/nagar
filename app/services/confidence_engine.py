@@ -24,6 +24,7 @@ NO ML. NO PROBABILISTIC SCORING. ONLY DETERMINISTIC RULES.
 
 from firebase_admin import firestore
 from app.config.firebase import get_db
+from app.utils.firestore_helpers import where_filter
 from datetime import datetime, timedelta
 from typing import List, Dict, Optional
 import math
@@ -182,7 +183,8 @@ class ConfidenceEngine:
         reports_ref = self.db.collection("reports")
         
         # Filter by locality and time window
-        query = reports_ref.where("locality", "==", locality).where("created_at", ">=", time_threshold)
+        query = where_filter(reports_ref, "locality", "==", locality)
+        query = where_filter(query, "created_at", ">=", time_threshold)
         
         # Fetch all matching reports
         docs = query.stream()

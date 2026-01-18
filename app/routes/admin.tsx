@@ -48,7 +48,7 @@ export default function Admin() {
           description: s.description,
           severity: (s.severity || "Low") as any,
           confidence: (s.confidence === "HIGH" ? "High" : s.confidence === "MEDIUM" ? "Medium" : "Low") as any,
-          status: s.status === "CONFIRMED" ? "Active" : s.status === "RESOLVED" ? "Resolved" : "Under Review",
+          status: s.status === "CONFIRMED" || s.status === "ACTIVE" ? "Active" : s.status === "RESOLVED" ? "Resolved" : "Under Review",
           timestamp: s.created_at || new Date().toISOString(),
           reportCount: s.report_count || 1,
           timeline: [

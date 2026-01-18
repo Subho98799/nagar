@@ -13,30 +13,55 @@ from typing import List, Dict, Any, Optional
 from app.config.firebase import get_db
 from datetime import datetime, timedelta
 from app.utils.geocoding import normalize_city_name
+from app.utils.firestore_helpers import where_filter
 import math
 
 
 def _parse_timestamp(value) -> Optional[datetime]:
+    """
+    Parse various timestamp formats to timezone-aware datetime (UTC).
+    
+    CRITICAL: All datetimes must be timezone-aware to prevent comparison bugs.
+    """
+    from datetime import timezone
+    
     if value is None:
         return None
     if isinstance(value, datetime):
-        return value
+        # Ensure timezone-aware (UTC)
+        if value.tzinfo is None:
+            return value.replace(tzinfo=timezone.utc)
+        return value.astimezone(timezone.utc)
     if isinstance(value, str):
         try:
-            return datetime.fromisoformat(value)
+            # Handle ISO format with Z
+            dt = datetime.fromisoformat(value.replace('Z', '+00:00'))
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            return dt.astimezone(timezone.utc)
         except Exception:
             try:
-                # Strip Z if present
-                if value.endswith('Z'):
-                    return datetime.fromisoformat(value[:-1])
+                # Try without Z
+                dt = datetime.fromisoformat(value)
+                if dt.tzinfo is None:
+                    dt = dt.replace(tzinfo=timezone.utc)
+                return dt.astimezone(timezone.utc)
             except Exception:
                 return None
     # Try common firestore Timestamp interface
     try:
+        if hasattr(value, 'timestamp'):
+            return datetime.fromtimestamp(value.timestamp(), tz=timezone.utc)
         if hasattr(value, 'ToDatetime'):
-            return value.ToDatetime()
+            dt = value.ToDatetime()
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            return dt.astimezone(timezone.utc)
         if hasattr(value, 'to_datetime'):
-            return value.to_datetime()
+            dt = value.to_datetime()
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            return dt.astimezone(timezone.utc)
     except Exception:
         pass
     return None
@@ -74,67 +99,52 @@ def get_city_issues(city: str) -> List[Dict[str, Any]]:
     """
     Get all issues for a given city.
     
-    PRODUCTION-GRADE: Handles city name variations and special cases.
-    
     Phase 5B: Dashboard reads ONLY from issues collection (not reports).
-    
-    Query Logic:
-    - If city == "Demo City": Return ALL ACTIVE issues (demo mode)
-    - If city is missing/empty: Return ALL ACTIVE issues
-    - Otherwise: Query by city OR city_variants array contains city
+    City name is normalized to match the normalized city values stored in issues.
     
     Args:
-        city: City name to filter by (may be "Demo City" for demo mode)
-    
-    Returns:
-        List of issue dictionaries matching the city filter
+        city: City name (normalized, lowercase) or empty string for all issues
     """
     db = get_db()
+    if db is None:
+        return []
+
+    # Fetch pre-aggregated issues from the issues collection (Firestore already has clustering done)
     issues_ref = db.collection("issues")
+    docs = []
     
-    # SPECIAL CASE: Demo City returns ALL active issues (intentional demo mode behavior)
-    if not city or city.strip() == "" or city.strip().lower() == "demo city":
-        # Return all active issues for demo mode
+    try:
+        # If city is provided and not empty, filter by city
+        # CRITICAL: City must be normalized (lowercase) to match stored values
+        if city and city != "UNKNOWN":
+            query = where_filter(issues_ref, "city", "==", city).limit(100)
+            docs = list(query.stream())
+        else:
+            # No city filter - return all issues (with limit for performance)
+            docs = list(issues_ref.limit(100).stream())
+    except Exception as e:
+        # Fallback: iterate all and filter by normalized city (with limit)
         try:
-            docs = list(issues_ref.where("status", "==", "ACTIVE").stream())
+            docs = list(issues_ref.limit(100).stream())
+            # If city filter was requested, filter in memory
+            if city and city != "UNKNOWN":
+                from app.utils.geocoding import normalize_city_name
+                docs = [
+                    doc for doc in docs
+                    if normalize_city_name(doc.to_dict().get("city", "")) == city
+                ]
         except Exception:
-            # Fallback: iterate all and filter by status
-            docs = list(issues_ref.stream())
-    else:
-        # Normalize city name for querying
-        normalized_city = normalize_city_name(city.strip())
-        
-        # Query by city OR city_variants array contains city
-        # Firestore doesn't support OR queries directly, so we need to:
-        # 1. Try query by city field
-        # 2. Fallback to iterate all and filter by city or city_variants
-        try:
-            # Try query by exact city match first
-            docs = list(issues_ref.where("city", "==", normalized_city).stream())
-        except Exception:
-            # Fallback: iterate all and filter
-            docs = list(issues_ref.stream())
+            # Return empty list if all queries fail
+            return []
 
     issues: List[Dict[str, Any]] = []
     for doc in docs:
         data = doc.to_dict()
         
-        # Skip non-active issues (unless demo mode)
-        status = data.get("status", "")
-        if status != "ACTIVE":
-            continue
-        
-        # Filter by city if not demo mode
-        if city and city.strip() and city.strip().lower() != "demo city":
-            normalized_city = normalize_city_name(city.strip())
+        # Filter by normalized city if city filter was provided
+        if city and city != "UNKNOWN":
             issue_city = normalize_city_name(data.get("city", ""))
-            city_variants = data.get("city_variants", [])
-            
-            # Match if: city matches OR city is in variants array
-            city_matches = (issue_city == normalized_city)
-            variant_matches = (normalized_city in [normalize_city_name(v) for v in city_variants])
-            
-            if not (city_matches or variant_matches):
+            if issue_city != city:
                 continue
         
         # Ensure required fields exist

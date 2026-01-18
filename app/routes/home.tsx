@@ -13,7 +13,7 @@ const CityMap = lazy(() => import("~/components/city-map").then(m => ({ default:
 
 export default function Home() {
   const [statusFilter, setStatusFilter] = useState<Status | "All">("All");
-  const [issues, setIssues] = useState<typeof mockIssues>(mockIssues);
+  const [issues, setIssues] = useState<typeof mockIssues>([]);
 
   useEffect(() => {
     let mounted = true;
@@ -43,9 +43,12 @@ export default function Home() {
           description: s.description,
           severity: (s.severity || "Low") as any,
           confidence: (s.confidence === "HIGH" ? "High" : s.confidence === "MEDIUM" ? "Medium" : "Low") as any,
-          status: s.status === "CONFIRMED" ? "Active" : s.status === "RESOLVED" ? "Resolved" : "Under Review",
+          status: s.status === "CONFIRMED" || s.status === "ACTIVE" ? "Active" : s.status === "RESOLVED" ? "Resolved" : "Under Review",
           timestamp: s.created_at || new Date().toISOString(),
           reportCount: s.report_count || 1,
+          // CRITICAL FIX: Include actual coordinates from server
+          latitude: s.latitude !== undefined ? Number(s.latitude) : undefined,
+          longitude: s.longitude !== undefined ? Number(s.longitude) : undefined,
           timeline: [
             {
               id: `${s.id}-t1`,

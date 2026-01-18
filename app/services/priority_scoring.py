@@ -11,6 +11,7 @@ DESIGN PRINCIPLES:
 
 from firebase_admin import firestore
 from app.config.firebase import get_db
+from app.utils.firestore_helpers import where_filter
 from datetime import datetime, timedelta
 from typing import Dict, Optional
 import logging
@@ -203,7 +204,8 @@ class PriorityScoringService:
         """
         try:
             reports_ref = self.db.collection("reports")
-            query = reports_ref.where("locality", "==", locality).where("city", "==", city)
+            query = where_filter(reports_ref, "locality", "==", locality)
+            query = where_filter(query, "city", "==", city)
             
             count = 0
             for doc in query.stream():

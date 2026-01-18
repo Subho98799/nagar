@@ -102,6 +102,90 @@ async def startup_event():
     except Exception as e:
         print(f"Warning: Firestore initialization failed: {e}")
         print("   The app will start but database operations may fail.")
+        return
+    
+    # MOCK ISSUE SAFETY NET: Insert demo issue if collection is empty
+    # This ensures the demo always has at least one issue to display
+    # Run sync operations in executor to avoid blocking startup
+    import asyncio
+    
+    def init_mock_issue_sync():
+        try:
+            from app.config.firebase import get_db
+            from app.utils.geocoding import normalize_city_name
+            from datetime import datetime, timezone
+            
+            db = get_db()
+            if db is None:
+                print("Warning: Firestore DB is None, skipping mock issue initialization")
+                return
+            
+            # Check if issues collection is empty for Demo City
+            normalized_city = normalize_city_name("Demo City")
+            issues_ref = db.collection("issues")
+            
+            # Count existing issues for Demo City (with timeout protection)
+            existing_count = 0
+            try:
+                # Use limit(1) to avoid loading all documents
+                from app.utils.firestore_helpers import where_filter
+                query = where_filter(issues_ref, "city", "==", normalized_city).limit(1)
+                docs = list(query.stream())
+                existing_count = len(docs)
+            except Exception as e:
+                print(f"[STARTUP] Query check failed: {e}, assuming empty")
+                # Fallback: check all issues (with limit)
+                try:
+                    all_docs = list(issues_ref.limit(1).stream())
+                    existing_count = len(all_docs)
+                except Exception:
+                    pass
+            
+            # If no issues exist, create a demo issue
+            if existing_count == 0:
+                print(f"[STARTUP] No issues found for '{normalized_city}', creating demo issue...")
+                demo_issue = {
+                    "title": "Traffic slowdown at Main Chowk",
+                    "description": "Clustered reports indicate slow-moving traffic near Main Chowk.",
+                    "issue_type": "Traffic & Roads",
+                    "severity": "MEDIUM",
+                    "confidence": "HIGH",
+                    "latitude": 12.9718,
+                    "longitude": 77.5940,
+                    "city": normalized_city,  # Use normalized city
+                    "locality": "Main Chowk, Station Road",
+                    "report_count": 12,
+                    "report_ids": [],
+                    "created_at": datetime.now(timezone.utc),
+                    "updated_at": datetime.now(timezone.utc),
+                    "status": "CONFIRMED",
+                    "operatorNotes": None,
+                    "timeline": [
+                        {
+                            "id": "t1",
+                            "timestamp": datetime.now(timezone.utc).isoformat(),
+                            "time": datetime.now(timezone.utc).strftime("%I:%M %p"),
+                            "confidence": "High",
+                            "description": "First reports received"
+                        }
+                    ]
+                }
+                
+                # Create the issue document
+                issue_ref = issues_ref.document()
+                issue_ref.set(demo_issue)
+                print(f"[STARTUP] Created demo issue with ID: {issue_ref.id}")
+            else:
+                print(f"[STARTUP] Found {existing_count} existing issue(s) for '{normalized_city}', skipping demo issue creation")
+        except Exception as e:
+            # Fail gracefully - don't block startup
+            print(f"Warning: Failed to initialize mock issue: {e}")
+            import traceback
+            traceback.print_exc()
+    
+    # Run mock issue init in executor (non-blocking)
+    loop = asyncio.get_event_loop()
+    loop.run_in_executor(None, init_mock_issue_sync)
 
 
 @app.on_event("shutdown")

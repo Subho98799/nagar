@@ -5,6 +5,7 @@ Vote Service - Handle voting (upvote/downvote) on issues.
 from firebase_admin import firestore
 from app.config.firebase import get_db
 from app.models.timeline import VoteResponse
+from app.utils.firestore_helpers import where_filter
 from typing import Optional, Dict
 import logging
 
@@ -37,7 +38,8 @@ class VoteService:
             existing_vote_id = None
             if user_id:
                 votes_ref = self.db.collection("votes")
-                query = votes_ref.where("issue_id", "==", issue_id).where("user_id", "==", user_id).limit(1)
+                query = where_filter(votes_ref, "issue_id", "==", issue_id)
+                query = where_filter(query, "user_id", "==", user_id).limit(1)
                 
                 for doc in query.stream():
                     existing_vote_id = doc.id
@@ -75,7 +77,7 @@ class VoteService:
         """
         try:
             votes_ref = self.db.collection("votes")
-            query = votes_ref.where("issue_id", "==", issue_id)
+            query = where_filter(votes_ref, "issue_id", "==", issue_id)
             
             upvotes = 0
             downvotes = 0

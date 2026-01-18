@@ -9,6 +9,7 @@ DESIGN PRINCIPLES:
 
 from firebase_admin import firestore
 from app.config.firebase import get_db
+from app.utils.firestore_helpers import where_filter
 from datetime import datetime, timedelta
 from typing import Optional, Dict
 import logging
@@ -63,7 +64,8 @@ class DuplicateDetectionService:
         reports_ref = self.db.collection("reports")
         
         # Query recent reports in same locality
-        query = reports_ref.where("locality", "==", locality).where("created_at", ">=", time_threshold)
+        query = where_filter(reports_ref, "locality", "==", locality)
+        query = where_filter(query, "created_at", ">=", time_threshold)
         
         duplicates = []
         
@@ -133,7 +135,8 @@ class DuplicateDetectionService:
         hour_threshold = now - timedelta(hours=1)
         
         reports_ref = self.db.collection("reports")
-        query = reports_ref.where("ip_address_hash", "==", ip_address_hash).where("created_at", ">=", hour_threshold)
+        query = where_filter(reports_ref, "ip_address_hash", "==", ip_address_hash)
+        query = where_filter(query, "created_at", ">=", hour_threshold)
         
         recent_count = len(list(query.stream()))
         

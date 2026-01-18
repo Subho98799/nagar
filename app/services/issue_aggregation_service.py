@@ -25,7 +25,7 @@ from firebase_admin import firestore
 
 from app.config.firebase import get_db
 from app.utils.geocoding import normalize_city_name
-from app.utils.city_normalizer import normalize_city
+from app.utils.firestore_helpers import where_filter
 
 
 # Constants
@@ -241,7 +241,8 @@ def _find_existing_issue(
         # CRITICAL: Query issues by normalized city and issue_type
         # Both reports and issues must use the same normalized city value
         normalized_city = normalize_city_name(city)
-        query = issues_ref.where("city", "==", normalized_city).where("issue_type", "==", issue_type)
+        query = where_filter(issues_ref, "city", "==", normalized_city)
+        query = where_filter(query, "issue_type", "==", issue_type)
         docs = query.stream()
         
         for doc in docs:
@@ -284,21 +285,24 @@ def create_or_update_issue_from_cluster(cluster: List[Dict[str, Any]]) -> Option
         return None
     
     # Extract common fields
-    # CRITICAL: Use robust city normalization to ensure dashboard queries work reliably
-    # This handles all city name variations (resolved_city, city, resolved_address, etc.)
+    # CRITICAL: Normalize city to ensure consistent storage in issues
+    # This ensures both reports and issues use the SAME normalized city value
     issue_type = cluster[0].get("issue_type", "")
+    city = normalize_city_name(cluster[0].get("city", ""))
     
-    # Use the first report as base for city normalization
-    base_report = cluster[0]
-    city_info = normalize_city(base_report)
-    canonical_city = city_info["canonical_city"]
-    city_variants = city_info["variants"]
-    
-    if not issue_type or not canonical_city or canonical_city == "UNKNOWN":
+    if not issue_type or not city or city == "UNKNOWN":
         return None
     
     # Calculate centroid
     centroid_lat, centroid_lon = _calculate_centroid(cluster)
+    
+    # CRITICAL FIX: Ensure coordinates are valid numbers before proceeding
+    # Do NOT create/update issue if coordinates are invalid (0.0, 0.0 or NaN)
+    if (centroid_lat is None or centroid_lon is None or 
+        not isinstance(centroid_lat, (int, float)) or not isinstance(centroid_lon, (int, float)) or
+        math.isnan(centroid_lat) or math.isnan(centroid_lon) or
+        (centroid_lat == 0.0 and centroid_lon == 0.0)):
+        return None
     
     # Get dominant locality
     locality = _get_dominant_locality(cluster)
@@ -314,8 +318,8 @@ def create_or_update_issue_from_cluster(cluster: List[Dict[str, Any]]) -> Option
     ]
     earliest_time = min(created_times) if created_times else datetime.now(timezone.utc)
     
-    # Check if issue already exists (use canonical_city for matching)
-    existing_issue_id = _find_existing_issue(db, issue_type, canonical_city, centroid_lat, centroid_lon)
+    # Check if issue already exists
+    existing_issue_id = _find_existing_issue(db, issue_type, city, centroid_lat, centroid_lon)
     
     if existing_issue_id:
         # Update existing issue
@@ -351,6 +355,15 @@ def create_or_update_issue_from_cluster(cluster: List[Dict[str, Any]]) -> Option
                             pass
                 
                 new_centroid_lat, new_centroid_lon = _calculate_centroid(all_reports)
+                
+                # CRITICAL FIX: Ensure coordinates are valid before updating
+                if (new_centroid_lat is None or new_centroid_lon is None or 
+                    not isinstance(new_centroid_lat, (int, float)) or not isinstance(new_centroid_lon, (int, float)) or
+                    math.isnan(new_centroid_lat) or math.isnan(new_centroid_lon) or
+                    (new_centroid_lat == 0.0 and new_centroid_lon == 0.0)):
+                    # Skip update if coordinates are invalid
+                    return existing_issue_id
+                
                 new_locality = _get_dominant_locality(all_reports)
                 
                 # Update issue
@@ -393,9 +406,8 @@ def create_or_update_issue_from_cluster(cluster: List[Dict[str, Any]]) -> Option
                                 except Exception:
                                     pass
                             
-                            # Enrich issue with AI (fail-safe, non-blocking)
-                            # CRITICAL: AI enrichment NEVER affects control flow, confidence, status, or escalation
-                            from app.services.ai_enrichment.registry import enrich_issue
+                            # Enrich issue with AI (fail-safe)
+                            from app.services.ai_issue_enrichment import enrich_issue
                             ai_metadata = enrich_issue(updated_issue_data, linked_reports)
                             if ai_metadata:
                                 # Store in ai_metadata, don't overwrite if already present
@@ -419,11 +431,10 @@ def create_or_update_issue_from_cluster(cluster: List[Dict[str, Any]]) -> Option
         
         issue_data = {
             "id": issue_id,
-            "title": f"{issue_type} issue in {locality or canonical_city}",
-            "description": f"Multiple reports of {issue_type.lower()} issues in {locality or canonical_city}. {len(cluster)} reports received.",
+            "title": f"{issue_type} issue in {locality or city}",
+            "description": f"Multiple reports of {issue_type.lower()} issues in {locality or city}. {len(cluster)} reports received.",
             "issue_type": issue_type,
-            "city": canonical_city,  # Canonical city name (normalized)
-            "city_variants": city_variants,  # Array of city name variants for flexible querying
+            "city": city,
             "locality": locality,
             "latitude": centroid_lat,
             "longitude": centroid_lon,
@@ -484,9 +495,8 @@ def create_or_update_issue_from_cluster(cluster: List[Dict[str, Any]]) -> Option
                             except Exception:
                                 pass
                         
-                        # Enrich issue with AI (fail-safe, non-blocking)
-                        # CRITICAL: AI enrichment NEVER affects control flow, confidence, status, or escalation
-                        from app.services.ai_enrichment.registry import enrich_issue
+                        # Enrich issue with AI (fail-safe)
+                        from app.services.ai_issue_enrichment import enrich_issue
                         ai_metadata = enrich_issue(updated_issue_data, linked_reports)
                         if ai_metadata:
                             # Store in ai_metadata, don't overwrite if already present
@@ -547,7 +557,7 @@ def attempt_issue_aggregation(report_id: Optional[str] = None) -> List[str]:
         # Fallback: stream all and filter
         try:
             # Try to query by status first
-            query = reports_ref.where("status", "in", list(VALID_STATUSES))
+            query = where_filter(reports_ref, "status", "in", list(VALID_STATUSES))
             docs = query.stream()
         except Exception:
             # Fallback: stream all
@@ -571,15 +581,13 @@ def attempt_issue_aggregation(report_id: Optional[str] = None) -> List[str]:
                 continue
             
             # Must have issue_type and city (normalized)
-            # CRITICAL: Use robust city normalization to handle all city name variations
-            city_info = normalize_city(data)
-            canonical_city = city_info["canonical_city"]
-            if not data.get("issue_type") or not canonical_city or canonical_city == "UNKNOWN":
+            # CRITICAL: Normalize city to ensure consistent matching
+            normalized_city = normalize_city_name(data.get("city"))
+            if not data.get("issue_type") or not normalized_city or normalized_city == "UNKNOWN":
                 continue
             
             # Update data with normalized city for consistent comparison
-            data["city"] = canonical_city
-            data["city_variants"] = city_info["variants"]
+            data["city"] = normalized_city
             
             # Check if within time window (last 24h)
             created_at = _parse_timestamp(data.get("created_at"))
@@ -609,14 +617,13 @@ def attempt_issue_aggregation(report_id: Optional[str] = None) -> List[str]:
                 lat = report.get("latitude")
                 lon = report.get("longitude")
                 issue_type = report.get("issue_type")
-                city_info = normalize_city(report)  # CRITICAL: Use robust normalization
-                canonical_city = city_info["canonical_city"]
+                city = normalize_city_name(report.get("city"))  # CRITICAL: Normalize for matching
                 
-                if not all([lat, lon, issue_type, canonical_city]) or canonical_city == "UNKNOWN":
+                if not all([lat, lon, issue_type, city]) or city == "UNKNOWN":
                     continue
                 
-                # Find existing issue that matches (using canonical city)
-                existing_issue_id = _find_existing_issue(db, issue_type, canonical_city, lat, lon)
+                # Find existing issue that matches (using normalized city)
+                existing_issue_id = _find_existing_issue(db, issue_type, city, lat, lon)
                 
                 if existing_issue_id:
                     # Link report to existing issue
@@ -649,6 +656,15 @@ def attempt_issue_aggregation(report_id: Optional[str] = None) -> List[str]:
                                     pass
                         
                         new_centroid_lat, new_centroid_lon = _calculate_centroid(all_reports_for_centroid)
+                        
+                        # CRITICAL FIX: Ensure coordinates are valid before updating
+                        if (new_centroid_lat is None or new_centroid_lon is None or 
+                            not isinstance(new_centroid_lat, (int, float)) or not isinstance(new_centroid_lon, (int, float)) or
+                            math.isnan(new_centroid_lat) or math.isnan(new_centroid_lon) or
+                            (new_centroid_lat == 0.0 and new_centroid_lon == 0.0)):
+                            # Skip update if coordinates are invalid
+                            continue
+                        
                         new_locality = _get_dominant_locality(all_reports_for_centroid)
                         
                         issue_ref.update({
@@ -683,9 +699,8 @@ def attempt_issue_aggregation(report_id: Optional[str] = None) -> List[str]:
                                         except Exception:
                                             pass
                                     
-                                    # Enrich issue with AI (fail-safe, non-blocking)
-                                    # CRITICAL: AI enrichment NEVER affects control flow, confidence, status, or escalation
-                                    from app.services.ai_enrichment.registry import enrich_issue
+                                    # Enrich issue with AI (fail-safe)
+                                    from app.services.ai_issue_enrichment import enrich_issue
                                     ai_metadata = enrich_issue(updated_issue_data, linked_reports)
                                     if ai_metadata:
                                         # Store in ai_metadata, don't overwrite if already present

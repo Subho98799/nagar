@@ -5,6 +5,7 @@ Timeline Service - Manages timeline feed, votes, comments, and analytics.
 from firebase_admin import firestore
 from app.config.firebase import get_db
 from app.models.timeline import TimelineIssue, VoteType, SourceType, IssueAnalytics, CommentResponse
+from app.utils.firestore_helpers import where_filter
 from datetime import datetime, timedelta
 from typing import List, Optional, Dict
 import logging
@@ -42,7 +43,7 @@ class TimelineService:
             query = reports_ref.order_by("created_at", direction=firestore.Query.DESCENDING)
             
             if city:
-                query = query.where("city", "==", city)
+                query = where_filter(query, "city", "==", city)
             
             # Execute query
             docs = query.limit(limit).stream()
@@ -62,7 +63,10 @@ class TimelineService:
                     # Get user's vote if authenticated
                     user_vote = None
                     if user_id:
-                        user_vote_doc = self.db.collection("votes").where("issue_id", "==", issue_id).where("user_id", "==", user_id).limit(1).stream()
+                        votes_ref = self.db.collection("votes")
+                        query = where_filter(votes_ref, "issue_id", "==", issue_id)
+                        query = where_filter(query, "user_id", "==", user_id)
+                        user_vote_doc = query.limit(1).stream()
                         user_vote_list = list(user_vote_doc)
                         if user_vote_list:
                             user_vote = VoteType(user_vote_list[0].to_dict().get("vote_type"))
@@ -215,7 +219,9 @@ class TimelineService:
         try:
             # Check if user already voted
             votes_ref = self.db.collection("votes")
-            existing_vote = votes_ref.where("issue_id", "==", issue_id).where("user_id", "==", user_id).limit(1).stream()
+            query = where_filter(votes_ref, "issue_id", "==", issue_id)
+            query = where_filter(query, "user_id", "==", user_id)
+            existing_vote = query.limit(1).stream()
             existing_vote_list = list(existing_vote)
             
             if existing_vote_list:
@@ -253,7 +259,9 @@ class TimelineService:
             popularity_score = upvote_count - downvote_count
             
             # Get user's current vote
-            user_vote_doc = votes_ref.where("issue_id", "==", issue_id).where("user_id", "==", user_id).limit(1).stream()
+            query = where_filter(votes_ref, "issue_id", "==", issue_id)
+            query = where_filter(query, "user_id", "==", user_id)
+            user_vote_doc = query.limit(1).stream()
             user_vote_list = list(user_vote_doc)
             user_vote = None
             if user_vote_list:
@@ -334,7 +342,7 @@ class TimelineService:
         """Get all votes for an issue."""
         try:
             votes_ref = self.db.collection("votes")
-            votes = votes_ref.where("issue_id", "==", issue_id).stream()
+            votes = where_filter(votes_ref, "issue_id", "==", issue_id).stream()
             return [doc.to_dict() for doc in votes]
         except:
             return []
@@ -343,7 +351,7 @@ class TimelineService:
         """Get comment count for an issue."""
         try:
             comments_ref = self.db.collection("comments")
-            comments = comments_ref.where("issue_id", "==", issue_id).stream()
+            comments = where_filter(comments_ref, "issue_id", "==", issue_id).stream()
             return len(list(comments))
         except:
             return 0
@@ -352,7 +360,8 @@ class TimelineService:
         """Get all comments for an issue."""
         try:
             comments_ref = self.db.collection("comments")
-            comments = comments_ref.where("issue_id", "==", issue_id).order_by("created_at", direction=firestore.Query.DESCENDING).stream()
+            query = where_filter(comments_ref, "issue_id", "==", issue_id)
+            comments = query.order_by("created_at", direction=firestore.Query.DESCENDING).stream()
             
             result = []
             for doc in comments:
@@ -361,7 +370,10 @@ class TimelineService:
                 # Get user vote if authenticated
                 user_vote = None
                 if user_id:
-                    vote_doc = self.db.collection("comment_votes").where("comment_id", "==", doc.id).where("user_id", "==", user_id).limit(1).stream()
+                    comment_votes_ref = self.db.collection("comment_votes")
+                    query = where_filter(comment_votes_ref, "comment_id", "==", doc.id)
+                    query = where_filter(query, "user_id", "==", user_id)
+                    vote_doc = query.limit(1).stream()
                     vote_list = list(vote_doc)
                     if vote_list:
                         user_vote = VoteType(vote_list[0].to_dict().get("vote_type"))
@@ -433,7 +445,8 @@ class TimelineService:
         """Get votes over time for charts."""
         try:
             votes_ref = self.db.collection("votes")
-            votes = votes_ref.where("issue_id", "==", issue_id).order_by("created_at").stream()
+            query = where_filter(votes_ref, "issue_id", "==", issue_id)
+            votes = query.order_by("created_at").stream()
             
             # Aggregate by date
             daily_votes = {}

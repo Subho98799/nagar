@@ -6,8 +6,19 @@ import "leaflet/dist/leaflet.css";
 // Mock coordinates for the city center (you can change this to your actual city)
 const CITY_CENTER: [number, number] = [28.6139, 77.209]; // Delhi as example
 
-// Generate mock coordinates for each issue based on location name
-function getIssueCoordinates(issue: Issue): [number, number] {
+// Get coordinates from issue - use actual coordinates if available, otherwise fallback to mock
+function getIssueCoordinates(issue: Issue & { latitude?: number; longitude?: number }): [number, number] | null {
+  // CRITICAL FIX: Use actual coordinates from server issues
+  // Convert to Number() to handle string coordinates
+  const lat = issue.latitude !== undefined ? Number(issue.latitude) : null;
+  const lng = issue.longitude !== undefined ? Number(issue.longitude) : null;
+  
+  // Only skip if coordinates are truly invalid (NaN)
+  if (lat !== null && lng !== null && !Number.isNaN(lat) && !Number.isNaN(lng)) {
+    return [lat, lng];
+  }
+  
+  // Fallback to mock coordinates only if no valid coordinates exist
   const baseCoords = { lat: CITY_CENTER[0], lng: CITY_CENTER[1] };
   
   // Simple hash function to generate consistent coordinates for each location
@@ -86,8 +97,12 @@ export function CityMap({ issues, className }: CityMapProps) {
 
     useEffect(() => {
       if (issues.length > 0) {
-        const bounds = issues.map((issue) => getIssueCoordinates(issue));
-        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 13 });
+        const bounds = issues
+          .map((issue) => getIssueCoordinates(issue))
+          .filter((coords): coords is [number, number] => coords !== null);
+        if (bounds.length > 0) {
+          map.fitBounds(bounds, { padding: [50, 50], maxZoom: 13 });
+        }
       }
     }, [issues, map]);
 
@@ -113,6 +128,10 @@ export function CityMap({ issues, className }: CityMapProps) {
 
         {activeIssues.map((issue) => {
           const coords = getIssueCoordinates(issue);
+          // CRITICAL FIX: Skip issue only if coordinates are truly invalid (null)
+          if (coords === null) {
+            return null;
+          }
           return (
             <Marker key={issue.id} position={coords} icon={createPulsingIcon(issue.severity)}>
               <Popup className={styles.popup}>

@@ -5,6 +5,7 @@ User Service - Manage users in Firestore.
 from firebase_admin import firestore
 from app.config.firebase import get_db
 from app.models.user import UserCreate, UserResponse
+from app.utils.firestore_helpers import where_filter
 from datetime import datetime
 from typing import Optional, Dict
 import logging
@@ -33,7 +34,7 @@ class UserService:
         try:
             normalized_phone = self._normalize_phone(phone_number)
             users_ref = self.db.collection("users")
-            query = users_ref.where("phone_number", "==", normalized_phone).limit(1)
+            query = where_filter(users_ref, "phone_number", "==", normalized_phone).limit(1)
             
             docs = list(query.stream())
             if docs:
